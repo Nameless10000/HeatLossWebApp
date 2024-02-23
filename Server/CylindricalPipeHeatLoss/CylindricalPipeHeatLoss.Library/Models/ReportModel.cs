@@ -8,22 +8,22 @@ namespace CylindricalPipeHeatLoss.Library.Models
 {
     public class ReportModel
     {
-        public double Q { get; internal set; }
+        public double Q { get; set; }
 
-        public double Rl { get; internal set; }
+        public double Rl { get; set; }
 
-        public double kl { get; internal set; }
+        public double kl { get; set; }
 
-        public double ql { get; internal set; }
+        public double ql { get; set; }
 
-        public List<double> Temperatures { get; internal set; }
+        public List<double> Temperatures { get; set; }
 
-        public List<double> Diameters { get; internal set; }
+        public List<double> Diameters { get; set; }
 
-        public List<double> Rli { get; internal set; }
+        public List<double> Rli { get; set; }
 
-        public List<PipeLayer> PipeLayers { get; internal set; }
+        public List<PipeLayer> PipeLayers { get; set; }
 
-        public double PipeLength { get; internal set; }
+        public double PipeLength { get; set; }
     }
 }

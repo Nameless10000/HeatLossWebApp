@@ -8,6 +8,11 @@ namespace CylindricalPipeHeatLoss.Library.Models
 {
     public class PipeLayer(double width, double thermalConductivityCoeff, string material = "Not set")
     {
+        public PipeLayer() : this(0, 0)
+        {
+            
+        }
+
         public double Width { get; set; } = width;
 
         public double ThermalConductivityCoeff { get; set; } = thermalConductivityCoeff;
