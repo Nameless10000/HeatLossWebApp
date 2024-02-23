@@ -91,5 +91,33 @@ namespace CylindricalPipeHeatLoss.Tests
                 Assert.That(report.Temperatures, Is.EqualTo(new double[] { 111.4, 43.93302377, 41.11568612, 40.00601496, 36.37998894, 5 }).Within(0.001));
             });
         }
+
+        [Test]
+        public void TestReportContructor() 
+        {
+            var a1 = 100;
+            var a2 = 50;
+
+            var pipeLen = 3;
+            var innerDiam = 0.02;
+
+            var layers = new List<PipeLayer>
+            {
+                new PipeLayer(0.025, 30),
+                new PipeLayer(0.003, 5)
+            };
+
+            var temps = new List<double>()
+            {
+                111.4,
+                double.NaN,
+                double.NaN,
+                40.00601496,
+                double.NaN,
+                5
+            };
+
+            Assert.Throws<InvalidTemperaturesCountException>(() => new CylindricalPipeHeatLossLib(innerDiam, pipeLen, layers, a1, a2, temps));
+        }
     }
 }
