@@ -126,8 +126,7 @@ namespace CylindricalPipeHeatLoss.Library
                 if (!double.IsNaN(_temperatures[i]))
                     continue;
 
-                var prevLayerTemp = _temperatures[i - 1];
-                _temperatures[i] = prevLayerTemp - GetLinearHeatFlowDensity() * GetThermalResistances()[i - 1] / PI;
+                _temperatures[i] = _temperatures[i - 1] - GetLinearHeatFlowDensity() * GetThermalResistances()[i - 1] / PI;
             }
 
             for (var i = firstKnownTemp.Index - 1; i >= 0; i--)
@@ -135,8 +134,7 @@ namespace CylindricalPipeHeatLoss.Library
                 if (!double.IsNaN(_temperatures[i]))
                     continue;
 
-                var nextLayerTemp = _temperatures[i + 1];
-                _temperatures[i] = GetLinearHeatFlowDensity() * GetThermalResistances()[i] / PI + nextLayerTemp;
+                _temperatures[i] = GetLinearHeatFlowDensity() * GetThermalResistances()[i] / PI + _temperatures[i + 1];
             }
 
             return _temperatures;
