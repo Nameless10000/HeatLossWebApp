@@ -6,17 +6,14 @@ using System.Threading.Tasks;
 
 namespace CylindricalPipeHeatLoss.Library.Models
 {
-    public class PipeLayer(double width, double thermalConductivityCoeff, string material = "Not set")
+    public class PipeLayer(Material material, double width)
     {
-        public PipeLayer() : this(0, 0)
-        {
-            
-        }
-
         public double Width { get; set; } = width;
 
-        public double ThermalConductivityCoeff { get; set; } = thermalConductivityCoeff;
+        public Material Material { get; set; } = material;
 
-        public string Material { get; set; } = material;
+        public PipeLayer() : this(new(0, 0, 0, "", ""), 0) { }
+
+        public double GetThermalConductivityCoeff(double temp) => Material.ACoeff * temp * temp + Material.BCoeff * temp + Material.CCoeff;
     }
 }

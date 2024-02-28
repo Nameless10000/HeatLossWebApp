@@ -9,12 +9,16 @@ namespace CylindricalPipeHeatLoss.API.Services
         public ReportModel CalculateHeatLossInfo(HeatLossRequestDTO requestDTO) 
         {
             var lib = new CylindricalPipeHeatLossLib(
-                requestDTO.InnerPipeDiameter, 
-                requestDTO.PipeLength, 
-                requestDTO.PipeLayers, 
+                requestDTO.InnerPipeRadius, 
                 requestDTO.A1, 
-                requestDTO.A2, 
-                requestDTO.Temps);
+                requestDTO.E, 
+                requestDTO.PipeLayers, 
+                requestDTO.InnerTemp,
+                requestDTO.OutterTemp,
+                requestDTO.Precision,
+                requestDTO.PipeOrientation,
+                requestDTO.PipeLength);
+                 
 
             return lib.GetReport();
         }

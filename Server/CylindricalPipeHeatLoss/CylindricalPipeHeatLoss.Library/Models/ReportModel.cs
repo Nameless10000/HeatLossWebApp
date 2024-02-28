@@ -10,17 +10,21 @@ namespace CylindricalPipeHeatLoss.Library.Models
     {
         public double Q { get; set; }
 
-        public double Rl { get; set; }
+        public double a2 { get; set; }
 
-        public double kl { get; set; }
+        public double a1 { get; set; }
 
         public double ql { get; set; }
 
+        public double e { get; set; }
+
+        public double OutterTemp { get; set; }
+
+        public double InnerTemp { get; set; }
+
         public List<double> Temperatures { get; set; }
 
-        public List<double> Diameters { get; set; }
-
-        public List<double> Rli { get; set; }
+        public List<double> Radiuses { get; set; }
 
         public List<PipeLayer> PipeLayers { get; set; }
 

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CylindricalPipeHeatLoss.API.Models.DBModels
 {
-    public class DiameterDB
+    public class RadiusDB
     {
         [Key]
         public int ID { get; set; }

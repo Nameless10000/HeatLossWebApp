@@ -4,7 +4,7 @@ namespace CylindricalPipeHeatLoss.API.Models
 {
     public class HeatLossRequestDTO
     {
-        public double InnerPipeDiameter { get; set; }
+        public double InnerPipeRadius { get; set; }
             
         public double PipeLength { get; set; }
 
@@ -12,8 +12,15 @@ namespace CylindricalPipeHeatLoss.API.Models
         
         public double A1 { get; set; }
 
-        public double A2 { get; set; }
+        public double E { get; set; }
         
-        public List<double> Temps { get; set; }
+        public double InnerTemp { get; set; }
+
+        public double OutterTemp { get; set; }
+
+        public double Precision { get; set; }
+
+        public PipeOrientation PipeOrientation { get; set; }
+
     }
 }
