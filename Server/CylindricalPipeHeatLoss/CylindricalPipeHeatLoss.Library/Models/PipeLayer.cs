@@ -12,7 +12,7 @@ namespace CylindricalPipeHeatLoss.Library.Models
 
         public Material Material { get; set; } = material;
 
-        public PipeLayer() : this(new(0, 0, 0, "", ""), 0) { }
+        public PipeLayer() : this(new(0, 0, 0, ""), 0) { }
 
         public double GetThermalConductivityCoeff(double temp) => Material.ACoeff * temp * temp + Material.BCoeff * temp + Material.CCoeff;
     }

@@ -73,15 +73,21 @@ namespace CylindricalPipeHeatLoss.Library
         {
             return new ReportModel
             {
-                Q = Q,
-                ql = _qls[0],
+                Q = RoundToPrecision(Q),
+                ql = RoundToPrecision(_qls[0]),
                 PipeLayers = _pipeLayers,
                 PipeLength = _pipeLength,
-                Temperatures = _temps,
-                Radiuses = _radiuses,
-                a2 = _a2
+                Temperatures = _temps.Select(RoundToPrecision).ToList(),
+                Radiuses = _radiuses.Select(RoundToPrecision).ToList(),
+                a2 = RoundToPrecision(_a2),
+                a1 = RoundToPrecision(_a1),
+                InnerTemp = _innerTemp,
+                OutterTemp = _outterTemp,
+                e = _e,
             };
         }
+
+        private double RoundToPrecision(double number) => Round(number / _precision) * _precision;
 
         private void CalcTempsAndQls()
         {
@@ -166,7 +172,7 @@ namespace CylindricalPipeHeatLoss.Library
                 return;
 
             var difference = Abs(ql - avgQl);
-            var ratio = difference / avgQl / 10;
+            var ratio = difference / avgQl / 100;
             if (ql > avgQl)
             {
                 if (fstTempIndex >= 0 && fstTempIndex < _temps.Count)
