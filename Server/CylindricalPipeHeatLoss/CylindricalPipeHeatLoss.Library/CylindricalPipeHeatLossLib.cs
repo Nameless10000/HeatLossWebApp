@@ -69,9 +69,7 @@ namespace CylindricalPipeHeatLoss.Library
             CalcTempsAndQls();
         }
 
-        public ReportModel GetReport()
-        {
-            return new ReportModel
+        public ReportModel GetReport() => new()
             {
                 Q = RoundToPrecision(Q),
                 ql = RoundToPrecision(_qls[0]),
@@ -85,7 +83,6 @@ namespace CylindricalPipeHeatLoss.Library
                 OutterTemp = _outterTemp,
                 e = _e,
             };
-        }
 
         private double RoundToPrecision(double number) => Round(number / _precision) * _precision;
 
@@ -97,7 +94,7 @@ namespace CylindricalPipeHeatLoss.Library
             while (!AreAllItemsEqual(_qls, _precision))
             {
                 _qls.Clear();
-                _a2 = CalcA2(_temps[^1]);
+                _a2 = CalcA2(_temps[^1]);   
 
                 var innerRl = 1 / (_a1 * _innerPipeRadius);
                 var innerQl = PI * Abs(_innerTemp - _temps[0]) / innerRl;
@@ -105,7 +102,7 @@ namespace CylindricalPipeHeatLoss.Library
 
                 for (var i = 0; i < _pipeLayers.Count; i++)
                 {
-                    var layerλ = _pipeLayers[i].GetThermalConductivityCoeff((_temps[i] + _temps[i + 1]) / 1);
+                    var layerλ = _pipeLayers[i].GetThermalConductivityCoeff((_temps[i] + _temps[i + 1]) / 2);
                     var layerQl = 2 * PI * layerλ / Log(_radiuses[i + 1] / _radiuses[i]) * (_temps[i] - _temps[i + 1]);
                     _qls.Add(layerQl);
                 }
@@ -172,7 +169,7 @@ namespace CylindricalPipeHeatLoss.Library
                 return;
 
             var difference = Abs(ql - avgQl);
-            var ratio = difference / avgQl / 100;
+            var ratio = difference / avgQl / 1000;
             if (ql > avgQl)
             {
                 if (fstTempIndex >= 0 && fstTempIndex < _temps.Count)

@@ -1,4 +1,5 @@
 ﻿using CylindricalPipeHeatLoss.API.Models;
+using CylindricalPipeHeatLoss.API.Models.DTOs;
 using CylindricalPipeHeatLoss.Library.Models;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;

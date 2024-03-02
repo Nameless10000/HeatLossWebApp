@@ -1,10 +1,11 @@
 ﻿using CylindricalPipeHeatLoss.API.Models;
+using CylindricalPipeHeatLoss.API.Models.DTOs;
 using CylindricalPipeHeatLoss.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CylindricalPipeHeatLoss.API.Controllers
 {
-    
+
     [ApiController, Route("api/[controller]/[action]")]
     public class HeatLossController(
         ReportGeneratingService reportGeneratingService,
