@@ -3,6 +3,7 @@ using CylindricalPipeHeatLoss.API.Models.DTOs;
 using CylindricalPipeHeatLoss.Library.Models;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System.IO;
 using System.Linq.Expressions;
 using System.Xml;
@@ -40,35 +41,75 @@ namespace CylindricalPipeHeatLoss.API.Services
                             worksheet.Cells[1, 1].Value = "Тепловые потери";
                             worksheet.Cells[2, 1].Value = "Q, Вт";
                             worksheet.Cells[3, 1].Value = reportData.Q;
+                            
+                            worksheet.Cells[1, 2].Value = "Длина трубы";
+                            worksheet.Cells[2, 2].Value = "l, м";
+                            worksheet.Cells[3, 2].Value = reportData.PipeLength;
 
-                            worksheet.Cells[1, 2].Value = "Коэффициент теплоотдачи";
-                            worksheet.Cells[2, 2].Value = "α";
-                            worksheet.Cells[3, 2].Value = reportData.a2;
+                            worksheet.Cells[1, 3].Value = "Коэффициент теплоотдачи";
+                            worksheet.Cells[2, 3].Value = "α";
+                            worksheet.Cells[3, 3].Value = reportData.a2;
 
-                            /*worksheet.Cells[1, 3].Value = "Линейный коэффициент теплопередачи";
-                            worksheet.Cells[2, 3].Value = "kl, Вт/(м*К)";
-                            worksheet.Cells[3, 3].Value = reportData.kl;*/ // TODO: заменить kl на что-либо другое
+                            worksheet.Cells[1, 4].Value = "Степень черноты поверхности внешней стенки";
+                            worksheet.Cells[2, 4].Value = "ε";
+                            worksheet.Cells[3, 4].Value = reportData.e;
 
-                            worksheet.Cells[1, 4].Value = "Линейная (погонная) плотность теплового потока через цилиндрическую стенку";
-                            worksheet.Cells[2, 4].Value = "ql, Вт/м";
-                            worksheet.Cells[3, 4].Value = reportData.ql;
+                            worksheet.Cells[1, 5].Value = "Линейная (погонная) плотность теплового потока через цилиндрическую стенку";
+                            worksheet.Cells[2, 5].Value = "ql, Вт/м";
+                            worksheet.Cells[3, 5].Value = reportData.ql;
 
-                            worksheet.Cells[1, 5, 1, 4 + reportData.Temperatures.Count].Value = "Температурные характеристики, C";
-                            worksheet.Cells[1, 5, 1, 4 + reportData.Temperatures.Count].Merge = true;
-                            worksheet.Cells[2, 5].Value = "Tf1";
-                            worksheet.Cells[2, 6].Value = "Tw1";
-                            var i = 6;
-                            for (; i < 2 + reportData.Temperatures.Count;)
-                                worksheet.Cells[2, ++i].Value = $"Tl{i - 4}-{i - 3}";
+                            // формирование блока рассчетных температур
+                            var tempHeaderCells = worksheet.Cells[1, 5, 1, 6 + reportData.Temperatures.Count];
+                            tempHeaderCells.Value = "Температурные характеристики, C";
+                            tempHeaderCells.Merge = true;
+                            worksheet.Cells[2, 6].Value = "Tf1";
+                            worksheet.Cells[2, 7].Value = "Tw1";
+                            var i = 7;
+                            for (; i < 4 + reportData.Temperatures.Count;)
+                                worksheet.Cells[2, ++i].Value = $"Tl{i - 6}-{i - 5}";
 
                             worksheet.Cells[2, ++i].Value = "Tw2";
                             worksheet.Cells[2, ++i].Value = "Tf2";
 
-                            /*for (var j = 5; j < 5 + reportData.Temperatures.Count; j++)
-                                worksheet.Cells[3, j].Value = reportData.Temperatures[j - 5];*/ // TODO: Температуры сред не в reportData.Temperatures, надо вынести j за for...
+                            List<double> temps = [reportData.InnerTemp, .. reportData.Temperatures, reportData.OutterTemp];
+                            for (var j = 5; j < 5 + temps.Count; j++)
+                                worksheet.Cells[3, j].Value = temps[j - 5];
+
+                            // Конец блока температур
+
+                            // Формирование блока информации по слоям
+
+                            var layersHeaderCells = worksheet.Cells[1, ++i, 1, i + 4];
+                            layersHeaderCells.Value = "Информация по слоям";
+                            layersHeaderCells.Merge = true;
+
+                            var row = 2;
+                            var layerNum = 0;
+                            foreach (var layer in reportData.PipeLayers)
+                            {
+                                layerNum++;
+                                var layerHeader = worksheet.Cells[row, i, row, i + 4];
+                                layerHeader.Value = $"Слой №{layerNum} ({layer.Material.Name})";
+                                layerHeader.Merge = true;
+
+                                worksheet.Cells[row + 1, i].Value = "A";
+                                worksheet.Cells[row + 2, i].Value = layer.Material.ACoeff;
+                                worksheet.Cells[row + 1, i + 1].Value = "B";
+                                worksheet.Cells[row + 2, i + 1].Value = layer.Material.BCoeff;
+                                worksheet.Cells[row + 1, i + 2].Value = "C";
+                                worksheet.Cells[row + 2, i + 2].Value = layer.Material.CCoeff;
+                                worksheet.Cells[row + 1, i + 3].Value = "Толщина, м";
+                                worksheet.Cells[row + 2, i + 3].Value = layer.Width;
+
+                                row += 3;
+                            }
+
+                            i += 5; // указатель на следующий пустой столбец
+                            // Окончание блока ифнормации по слоям
+
 
                             worksheet.Cells.AutoFitColumns();
-
+                            
                             package.Save();
 
                             return ms;

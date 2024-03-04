@@ -12,8 +12,6 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        
-
         var heatLossDbContextConnectionString = builder.Configuration.GetConnectionString("HeatLossConnectionString");
         builder.Services.AddDbContext<HeatLossDbContext>(opt => opt.UseSqlite(heatLossDbContextConnectionString));
 
