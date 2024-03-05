@@ -41,6 +41,10 @@ namespace CylindricalPipeHeatLoss.Library
 
         private List<double> _radiuses = [];
 
+        private double InnerQl { get; set; }
+
+        private double OutterQl { get; set; }
+
         public double Q => _qls[0] * _pipeLength;
 
         public CylindricalPipeHeatLossLib(
@@ -82,6 +86,8 @@ namespace CylindricalPipeHeatLoss.Library
                 InnerTemp = _innerTemp,
                 OutterTemp = _outterTemp,
                 e = _e,
+                InnerQl = RoundToPrecision(InnerQl),
+                OutterQl = RoundToPrecision(OutterQl),
             };
 
         private double RoundToPrecision(double number) => Round(number / _precision) * _precision;
@@ -97,19 +103,19 @@ namespace CylindricalPipeHeatLoss.Library
                 _a2 = CalcA2(_temps[^1]);   
 
                 var innerRl = 1 / (_a1 * _innerPipeRadius);
-                var innerQl = PI * Abs(_innerTemp - _temps[0]) / innerRl;
-                _qls.Add(innerQl);
+                InnerQl = PI * Abs(_innerTemp - _temps[0]) / innerRl;
+                _qls.Add(InnerQl);
 
                 for (var i = 0; i < _pipeLayers.Count; i++)
                 {
-                    var layerλ = _pipeLayers[i].GetThermalConductivityCoeff((_temps[i] + _temps[i + 1]) / 2);
-                    var layerQl = 2 * PI * layerλ / Log(_radiuses[i + 1] / _radiuses[i]) * (_temps[i] - _temps[i + 1]);
-                    _qls.Add(layerQl);
+                    _pipeLayers[i].ThermalConductivityCoeff = _pipeLayers[i].GetThermalConductivityCoeff((_temps[i] + _temps[i + 1]) / 2);
+                    _pipeLayers[i].Ql = 2 * PI * _pipeLayers[i].ThermalConductivityCoeff / Log(_radiuses[i + 1] / _radiuses[i]) * (_temps[i] - _temps[i + 1]);
+                    _qls.Add(_pipeLayers[i].Ql);
                 }
 
                 var outterRl = 1 / (_a2 * _radiuses[^1]);
-                var outterQl = PI * Abs(_temps[^1] - _outterTemp) / outterRl;
-                _qls.Add(outterQl);
+                OutterQl = PI * Abs(_temps[^1] - _outterTemp) / outterRl;
+                _qls.Add(OutterQl);
 
                 var avgQl = _qls.Average();
                 for (var i = 0; i < _qls.Count; i++)

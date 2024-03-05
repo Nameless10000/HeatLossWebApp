@@ -10,6 +10,10 @@ namespace CylindricalPipeHeatLoss.Library.Models
     {
         public double Width { get; set; } = width;
 
+        public double ThermalConductivityCoeff { get; set; }
+
+        public double Ql { get; set; }
+
         public Material Material { get; set; } = material;
 
         public PipeLayer() : this(new(0, 0, 0, ""), 0) { }

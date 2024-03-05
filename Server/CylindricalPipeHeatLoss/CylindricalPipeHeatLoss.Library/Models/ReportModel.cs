@@ -10,6 +10,10 @@ namespace CylindricalPipeHeatLoss.Library.Models
     {
         public double Q { get; set; }
 
+        public double InnerQl { get; set; }
+
+        public double OutterQl { get; set; }
+
         public double a2 { get; set; }
 
         public double a1 { get; set; }

@@ -59,7 +59,7 @@ namespace CylindricalPipeHeatLoss.API.Services
                             worksheet.Cells[3, 5].Value = reportData.ql;
 
                             // формирование блока рассчетных температур
-                            var tempHeaderCells = worksheet.Cells[1, 5, 1, 6 + reportData.Temperatures.Count];
+                            var tempHeaderCells = worksheet.Cells[1, 6, 1, 6 + reportData.Temperatures.Count];
                             tempHeaderCells.Value = "Температурные характеристики, C";
                             tempHeaderCells.Merge = true;
                             worksheet.Cells[2, 6].Value = "Tf1";
@@ -72,14 +72,14 @@ namespace CylindricalPipeHeatLoss.API.Services
                             worksheet.Cells[2, ++i].Value = "Tf2";
 
                             List<double> temps = [reportData.InnerTemp, .. reportData.Temperatures, reportData.OutterTemp];
-                            for (var j = 5; j < 5 + temps.Count; j++)
-                                worksheet.Cells[3, j].Value = temps[j - 5];
+                            for (var j = 6; j < 6 + temps.Count; j++)
+                                worksheet.Cells[3, j].Value = temps[j - 6];
 
                             // Конец блока температур
 
                             // Формирование блока информации по слоям
 
-                            var layersHeaderCells = worksheet.Cells[1, ++i, 1, i + 4];
+                            var layersHeaderCells = worksheet.Cells[1, ++i, 1, i + 5];
                             layersHeaderCells.Value = "Информация по слоям";
                             layersHeaderCells.Merge = true;
 
@@ -88,7 +88,7 @@ namespace CylindricalPipeHeatLoss.API.Services
                             foreach (var layer in reportData.PipeLayers)
                             {
                                 layerNum++;
-                                var layerHeader = worksheet.Cells[row, i, row, i + 4];
+                                var layerHeader = worksheet.Cells[row, i, row, i + 5];
                                 layerHeader.Value = $"Слой №{layerNum} ({layer.Material.Name})";
                                 layerHeader.Merge = true;
 
@@ -100,12 +100,30 @@ namespace CylindricalPipeHeatLoss.API.Services
                                 worksheet.Cells[row + 2, i + 2].Value = layer.Material.CCoeff;
                                 worksheet.Cells[row + 1, i + 3].Value = "Толщина, м";
                                 worksheet.Cells[row + 2, i + 3].Value = layer.Width;
+                                worksheet.Cells[row + 1, i + 4].Value = "Коэффициент теплопроводности";
+                                worksheet.Cells[row + 2, i + 4].Value = layer.ThermalConductivityCoeff;
+                                worksheet.Cells[row + 1, i + 5].Value = "Плотность теплового потока";
+                                worksheet.Cells[row + 2, i + 5].Value = layer.Ql;
 
                                 row += 3;
                             }
 
-                            i += 5; // указатель на следующий пустой столбец
+                            i += 6; // указатель на следующий пустой столбец
+
                             // Окончание блока ифнормации по слоям
+
+                            worksheet.Cells[1, i].Value = "Плотность теплового потока от внутренней среды к стенке";
+                            worksheet.Cells[2, i].Value = "inner ql, Вт/м";
+                            worksheet.Cells[3, i].Value = reportData.InnerQl;
+
+                            i++;
+
+                            worksheet.Cells[1, i].Value = "Плотность теплового потока от наружной стенки в окружающую среду";
+                            worksheet.Cells[2, i].Value = "outter ql, Вт/м";
+                            worksheet.Cells[3, i].Value = reportData.OutterQl;
+
+                            i++;
+
 
 
                             worksheet.Cells.AutoFitColumns();
