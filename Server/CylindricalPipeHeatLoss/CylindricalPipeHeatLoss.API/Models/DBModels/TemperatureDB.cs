@@ -12,8 +12,6 @@ namespace CylindricalPipeHeatLoss.API.Models.DBModels
 
         public int ReportID { get; set; }
 
-        public DateTime ReportGeneratedAt { get; set; }
-
         public double Value { get; set; }
     }
 }

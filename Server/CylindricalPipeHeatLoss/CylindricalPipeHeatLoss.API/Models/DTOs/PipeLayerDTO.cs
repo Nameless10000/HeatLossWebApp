@@ -4,6 +4,8 @@
     {
         public int? MaterialID { get; set; }
 
+        public int? MaterialGroupID { get; set; }
+
         public double Width { get; set; }
 
         public bool IsResourceMaterial => MaterialID != null && MaterialID > 0;

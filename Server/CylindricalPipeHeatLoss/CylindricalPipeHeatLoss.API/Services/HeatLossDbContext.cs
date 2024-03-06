@@ -19,21 +19,26 @@ namespace CylindricalPipeHeatLoss.API.Services
         {
             modelBuilder
                 .Entity<ReportDB>()
+                .Property(x => x.ID)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder
+                .Entity<ReportDB>()
                 .HasMany(x => x.Temperatures)
                 .WithOne(x => x.Report)
-                .HasForeignKey(x => new { x.ReportID, x.ReportGeneratedAt });
+                .HasForeignKey(x => new { x.ReportID });
 
             modelBuilder
                 .Entity<ReportDB>()
                 .HasMany(x => x.Radiuses)
                 .WithOne(x => x.Report)
-                .HasForeignKey(x => new { x.ReportID, x.ReportGeneratedAt });
+                .HasForeignKey(x => new { x.ReportID });
 
             modelBuilder
                 .Entity<ReportDB>()
                 .HasMany(x => x.PipeLayers)
                 .WithOne(x => x.Report)
-                .HasForeignKey(x => new { x.ReportID, x.ReportGeneratedAt });
+                .HasForeignKey(x => new { x.ReportID });
 
             modelBuilder
                 .Entity<PipeLayerDB>()
@@ -223,15 +228,6 @@ namespace CylindricalPipeHeatLoss.API.Services
                         ACoeff = 1.452e-6,
                         BCoeff = -4.398e-3,
                         CCoeff = 6.040
-                    },
-                    new MaterialDB
-                    {
-                        ID = 12,
-                        MaterialGroupID = 4,
-                        Name = "КЛ-1,8",
-                        ACoeff = 0.186e-6,
-                        BCoeff = -6.1e-3,
-                        CCoeff = 1.409
                     },
                     new MaterialDB
                     {

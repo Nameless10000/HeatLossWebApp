@@ -3,14 +3,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CylindricalPipeHeatLoss.API.Models.DBModels
 {
-    [PrimaryKey(nameof(ID), nameof(GeneratedAt))]
     public class ReportDB
     {
+        [Key]
         public int ID { get; set; }
 
         public DateTime GeneratedAt { get; set; }
 
         public double Q { get; set; }
+
+        public double InnerQl { get; set; }
+
+        public double OutterQl { get; set; }
 
         public double a1 { get; set; }
 

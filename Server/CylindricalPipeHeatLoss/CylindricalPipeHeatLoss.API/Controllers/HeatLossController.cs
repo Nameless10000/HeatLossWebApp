@@ -15,7 +15,7 @@ namespace CylindricalPipeHeatLoss.API.Controllers
         [HttpPost]
         public async Task<JsonResult> GetHeatLossReport(HeatLossRequestDTO requestDTO)
         {
-            return new JsonResult(reportGeneratingService.CalculateHeatLossInfo(requestDTO));
+            return new JsonResult(await reportGeneratingService.CalculateHeatLossInfoAsync(requestDTO));
         }
 
         [HttpPost]

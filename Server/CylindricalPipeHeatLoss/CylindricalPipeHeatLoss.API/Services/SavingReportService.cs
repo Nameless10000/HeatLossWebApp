@@ -15,9 +15,9 @@ namespace CylindricalPipeHeatLoss.API.Services
     {
         public async Task<Stream> SaveReportAs(HeatLossRequestDTO requestDTO, FileType fileType = FileType.Xml)
         {
-            return await Task.Run(() =>
+            return await Task.Run(async () =>
             {
-                var reportData = reportGeneratingService.CalculateHeatLossInfo(requestDTO);
+                var reportData = await reportGeneratingService.CalculateHeatLossInfoAsync(requestDTO);
                 switch (fileType)
                 {
                     case FileType.Xml:

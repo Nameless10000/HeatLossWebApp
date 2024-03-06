@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CylindricalPipeHeatLoss.API.Migrations
 {
     [DbContext(typeof(HeatLossDbContext))]
-    [Migration("20240228182210_MaterialsAndMaterialGroups_Data_Filling")]
-    partial class MaterialsAndMaterialGroups_Data_Filling
+    [Migration("20240306172328_NewDB_INIT")]
+    partial class NewDB_INIT
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -147,15 +147,6 @@ namespace CylindricalPipeHeatLoss.API.Migrations
                             CCoeff = 6.04,
                             MaterialGroupID = 3,
                             Name = "К"
-                        },
-                        new
-                        {
-                            ID = 12,
-                            ACoeff = 1.86E-07,
-                            BCoeff = -0.0061000000000000004,
-                            CCoeff = 1.409,
-                            MaterialGroupID = 4,
-                            Name = "КЛ-1,8"
                         },
                         new
                         {
@@ -543,9 +534,6 @@ namespace CylindricalPipeHeatLoss.API.Migrations
                     b.Property<int>("MaterialID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("ReportGeneratedAt")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("ReportID")
                         .HasColumnType("INTEGER");
 
@@ -556,7 +544,7 @@ namespace CylindricalPipeHeatLoss.API.Migrations
 
                     b.HasIndex("MaterialID");
 
-                    b.HasIndex("ReportID", "ReportGeneratedAt");
+                    b.HasIndex("ReportID");
 
                     b.ToTable("PipeLayers");
                 });
@@ -567,9 +555,6 @@ namespace CylindricalPipeHeatLoss.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("ReportGeneratedAt")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("ReportID")
                         .HasColumnType("INTEGER");
 
@@ -578,7 +563,7 @@ namespace CylindricalPipeHeatLoss.API.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("ReportID", "ReportGeneratedAt");
+                    b.HasIndex("ReportID");
 
                     b.ToTable("Radiuses");
                 });
@@ -586,12 +571,19 @@ namespace CylindricalPipeHeatLoss.API.Migrations
             modelBuilder.Entity("CylindricalPipeHeatLoss.API.Models.DBModels.ReportDB", b =>
                 {
                     b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("GeneratedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<double>("InnerQl")
+                        .HasColumnType("REAL");
+
                     b.Property<double>("InnerTemp")
+                        .HasColumnType("REAL");
+
+                    b.Property<double>("OutterQl")
                         .HasColumnType("REAL");
 
                     b.Property<double>("OutterTemp")
@@ -615,7 +607,7 @@ namespace CylindricalPipeHeatLoss.API.Migrations
                     b.Property<double>("ql")
                         .HasColumnType("REAL");
 
-                    b.HasKey("ID", "GeneratedAt");
+                    b.HasKey("ID");
 
                     b.ToTable("Reports");
                 });
@@ -626,9 +618,6 @@ namespace CylindricalPipeHeatLoss.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("ReportGeneratedAt")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("ReportID")
                         .HasColumnType("INTEGER");
 
@@ -637,7 +626,7 @@ namespace CylindricalPipeHeatLoss.API.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("ReportID", "ReportGeneratedAt");
+                    b.HasIndex("ReportID");
 
                     b.ToTable("Temperatures");
                 });
@@ -663,7 +652,7 @@ namespace CylindricalPipeHeatLoss.API.Migrations
 
                     b.HasOne("CylindricalPipeHeatLoss.API.Models.DBModels.ReportDB", "Report")
                         .WithMany("PipeLayers")
-                        .HasForeignKey("ReportID", "ReportGeneratedAt")
+                        .HasForeignKey("ReportID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -676,7 +665,7 @@ namespace CylindricalPipeHeatLoss.API.Migrations
                 {
                     b.HasOne("CylindricalPipeHeatLoss.API.Models.DBModels.ReportDB", "Report")
                         .WithMany("Radiuses")
-                        .HasForeignKey("ReportID", "ReportGeneratedAt")
+                        .HasForeignKey("ReportID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -687,7 +676,7 @@ namespace CylindricalPipeHeatLoss.API.Migrations
                 {
                     b.HasOne("CylindricalPipeHeatLoss.API.Models.DBModels.ReportDB", "Report")
                         .WithMany("Temperatures")
-                        .HasForeignKey("ReportID", "ReportGeneratedAt")
+                        .HasForeignKey("ReportID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
