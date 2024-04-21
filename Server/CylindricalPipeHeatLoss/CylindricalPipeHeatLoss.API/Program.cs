@@ -23,7 +23,7 @@ public class Program
 
         builder.Services.AddSingleton(mapper);
 
-        builder.Services.AddTransient<ReportGeneratingService>();
+        builder.Services.AddTransient<ReportModelGeneratingService>();
         builder.Services.AddTransient<SavingReportService>();
 
         builder.Services.AddControllers();

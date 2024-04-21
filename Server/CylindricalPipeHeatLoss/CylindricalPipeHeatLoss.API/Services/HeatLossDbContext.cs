@@ -13,6 +13,8 @@ namespace CylindricalPipeHeatLoss.API.Services
 
         public DbSet<PipeLayerDB> PipeLayers { get; set; }
 
+        public DbSet<MaterialGroupDB> MaterialGroups { get; set; }
+
         public DbSet<ReportDB> Reports { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

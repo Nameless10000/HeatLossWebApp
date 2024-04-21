@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 
 namespace CylindricalPipeHeatLoss.API.Services
 {
-    public class SavingReportService(ReportGeneratingService reportGeneratingService)
+    public class SavingReportService(ReportModelGeneratingService reportGeneratingService)
     {
         public async Task<Stream> SaveReportAs(HeatLossRequestDTO requestDTO, FileType fileType = FileType.Xml)
         {
@@ -123,8 +123,6 @@ namespace CylindricalPipeHeatLoss.API.Services
                             worksheet.Cells[3, i].Value = reportData.OutterQl;
 
                             i++;
-
-
 
                             worksheet.Cells.AutoFitColumns();
                             

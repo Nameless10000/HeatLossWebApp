@@ -6,7 +6,7 @@ using CylindricalPipeHeatLoss.API.Models.DBModels;
 
 namespace CylindricalPipeHeatLoss.API.Services
 {
-    public class ReportGeneratingService(IMapper mapper, HeatLossDbContext dbContext)
+    public class ReportModelGeneratingService(IMapper mapper, HeatLossDbContext dbContext)
     {
         public async Task<ReportModel> CalculateHeatLossInfoAsync(HeatLossRequestDTO requestDTO) 
         {
@@ -52,7 +52,7 @@ namespace CylindricalPipeHeatLoss.API.Services
                     if (layer.IsResourceMaterial)
                         return new PipeLayerDB
                         {
-                            MaterialID = layer.MaterialID.Value,
+                            MaterialID = layer.MaterialID!.Value,
                             ReportID = reportDb.ID,
                             Width = layer.Width
                         };
@@ -62,8 +62,8 @@ namespace CylindricalPipeHeatLoss.API.Services
                         ACoeff = layer.ACoeff ?? 0,
                         BCoeff = layer.BCoeff ?? 0,
                         CCoeff = layer.CCoeff ?? 0,
-                        Name = layer.MaterialName,
-                        MaterialGroupID = layer.MaterialGroupID.Value
+                        Name = layer.MaterialName!,
+                        MaterialGroupID = layer.MaterialGroupID!.Value
                     };
 
                     dbContext.Materials.Add(newMaterial);
