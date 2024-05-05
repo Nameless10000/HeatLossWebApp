@@ -8,7 +8,7 @@ namespace CylindricalPipeHeatLoss.API.Services
 {
     public class ReportModelGeneratingService(IMapper mapper, HeatLossDbContext dbContext)
     {
-        public async Task<ReportModel> CalculateHeatLossInfoAsync(HeatLossRequestDTO requestDTO) 
+        public async Task<ReportDB> CalculateHeatLossInfoAsync(HeatLossRequestDTO requestDTO) 
         {
             var lib = new CylindricalPipeHeatLossLib(
                 requestDTO.InnerPipeRadius, 
@@ -81,7 +81,7 @@ namespace CylindricalPipeHeatLoss.API.Services
 
             await dbContext.SaveChangesAsync();
 
-            return report;
+            return reportDb;
         }
     }
 }

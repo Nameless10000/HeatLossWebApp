@@ -28,6 +28,18 @@ namespace CylindricalPipeHeatLoss.API.Controllers
             return new(await dBAccessService.GetReportsAsync(reportsGetParams));
         }
 
+        [HttpGet]
+        public async Task<JsonResult> GetMaterials([FromQuery] int groupId = -1)
+        {
+            return new(await dBAccessService.GetMaterialsAsync(groupId));
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> GetMaterialGroups()
+        {
+            return new(await dBAccessService.GetMaterialGroupsAsync());
+        }
+
         [HttpPost]
         public async Task<FileResult> GetXmlReport(HeatLossRequestDTO requestDTO)
         {

@@ -71,7 +71,7 @@ namespace CylindricalPipeHeatLoss.API.Services
                             worksheet.Cells[2, ++i].Value = "Tw2";
                             worksheet.Cells[2, ++i].Value = "Tf2";
 
-                            List<double> temps = [reportData.InnerTemp, .. reportData.Temperatures, reportData.OutterTemp];
+                            List<double> temps = [reportData.InnerTemp, .. reportData.Temperatures.Select(t => t.Value), reportData.OutterTemp];
                             for (var j = 6; j < 6 + temps.Count; j++)
                                 worksheet.Cells[3, j].Value = temps[j - 6];
 
@@ -100,10 +100,6 @@ namespace CylindricalPipeHeatLoss.API.Services
                                 worksheet.Cells[row + 2, i + 2].Value = layer.Material.CCoeff;
                                 worksheet.Cells[row + 1, i + 3].Value = "Толщина, м";
                                 worksheet.Cells[row + 2, i + 3].Value = layer.Width;
-                                worksheet.Cells[row + 1, i + 4].Value = "Коэффициент теплопроводности";
-                                worksheet.Cells[row + 2, i + 4].Value = layer.ThermalConductivityCoeff;
-                                worksheet.Cells[row + 1, i + 5].Value = "Плотность теплового потока";
-                                worksheet.Cells[row + 2, i + 5].Value = layer.Ql;
 
                                 row += 3;
                             }

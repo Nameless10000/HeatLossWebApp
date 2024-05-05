@@ -1,5 +1,6 @@
 ﻿using CylindricalPipeHeatLoss.API.Models.DBModels;
 using CylindricalPipeHeatLoss.API.Models.DTOs;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using static System.Math;
 
@@ -31,15 +32,21 @@ namespace CylindricalPipeHeatLoss.API.Services
 
         #region DB Dictionaries Access Block
 
-        public async Task<List<MaterialDB>> GetMaterials(int groupId = -1)
+        public async Task<List<MaterialDB>> GetMaterialsAsync(int groupId = -1)
         {
             return await (groupId switch
             {
-                -1 => dbContext.Materials.ToListAsync(),
+                -1 => dbContext.Materials.Include(x => x.MaterialGroup).ToListAsync(),
                 _ => dbContext.Materials
+                    .Include(x => x.MaterialGroup)
                     .Where(material => material.MaterialGroupID == groupId)
                     .ToListAsync()
             });
+        }
+
+        public async Task<List<MaterialGroupDB>> GetMaterialGroupsAsync()
+        {
+            return await dbContext.MaterialGroups.ToListAsync();
         }
 
         public async Task<List<PipeLayerDB>> GetLayersByReport(int reportId)

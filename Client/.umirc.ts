@@ -6,8 +6,12 @@ export default defineConfig({
   model: {},
   initialState: {},
   request: {},
+  locale: {
+    antd: true,
+    default: 'ru-RU'
+  },
   layout: {
-    title: '@umijs/max',
+    title: 'Cylindrical multilayer wall calculator',
   },
   routes: [
     {
