@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace CylindricalPipeHeatLoss.API.Models.DBModels
 {
@@ -21,6 +22,7 @@ namespace CylindricalPipeHeatLoss.API.Models.DBModels
         [Column(TypeName = "VARCHAR(32)")]
         public string Name { get; set; }
 
+        [JsonIgnore]
         public List<PipeLayerDB> PipeLayers { get; set; }
     }
 }

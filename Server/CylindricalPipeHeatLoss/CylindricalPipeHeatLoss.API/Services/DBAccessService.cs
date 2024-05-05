@@ -1,4 +1,5 @@
 ﻿using CylindricalPipeHeatLoss.API.Models.DBModels;
+using CylindricalPipeHeatLoss.API.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 using static System.Math;
 
@@ -8,19 +9,22 @@ namespace CylindricalPipeHeatLoss.API.Services
     {
         #region Report Access Block
 
-        public async Task<List<ReportDB>> GetReportsByDate(DateTime from, DateTime to)
+        public async Task<List<ReportDB>> GetReportsAsync(ReportsGetParams getParams)
         {
-            return await dbContext.Reports
-                .Where(report => report.GeneratedAt > from && report.GeneratedAt < to)
-                .ToListAsync();
-        }
+            var reportsByDate = dbContext.Reports
+                .Include(x => x.Temperatures)
+                .Include(x => x.PipeLayers)
+                .ThenInclude(x => x.Material)
+                .Include(x => x.Radiuses)
+                .Where(report => report.GeneratedAt > getParams.From && report.GeneratedAt < getParams.To)
+                .AsQueryable();
 
-        public async Task<List<ReportDB>> GetReportsByHeatLoss(double ql, double precision)
-        {
-            return (await dbContext.Reports
-                .ToListAsync())
-                .Where(report => Abs(report.ql - ql) <= precision)
-                .ToList();
+            if (getParams.Ql.HasValue)
+                reportsByDate = reportsByDate
+                    .Where(report => Abs(report.ql - getParams.Ql.Value) <= getParams.QlPrecision)
+                    .AsQueryable();
+
+            return await reportsByDate.ToListAsync();
         }
 
         #endregion
@@ -51,11 +55,6 @@ namespace CylindricalPipeHeatLoss.API.Services
                 .Where(layer => layer.ReportID == reportId)
                 .ToListAsync();
         }
-
-        /*public async Task<List<MaterialGroupDB>> GetGroups()
-        {
-            return await dbContext.
-        }*/
 
         #endregion
     }

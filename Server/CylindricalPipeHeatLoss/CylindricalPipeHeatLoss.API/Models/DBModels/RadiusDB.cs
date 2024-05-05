@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Presentation;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace CylindricalPipeHeatLoss.API.Models.DBModels
 {
@@ -9,6 +10,7 @@ namespace CylindricalPipeHeatLoss.API.Models.DBModels
         [Key]
         public int ID { get; set; }
 
+        [JsonIgnore]
         public ReportDB Report { get; set; }
 
         public int ReportID { get; set; }

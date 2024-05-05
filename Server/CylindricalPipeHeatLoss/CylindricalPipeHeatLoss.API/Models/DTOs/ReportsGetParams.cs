@@ -2,11 +2,11 @@
 {
     public class ReportsGetParams
     {
-        public DateTime? From { get; set; }
-        public DateTime? To { get; set; }
+        public DateTime From { get; set; } = DateTime.MinValue;
+        public DateTime To { get; set; } = DateTime.Now;
 
         public double? Ql { get; set; }
 
-        public double QlPrecision { get; set; } = 0;
+        public double QlPrecision { get; set; } = 1e-2;
     }
 }

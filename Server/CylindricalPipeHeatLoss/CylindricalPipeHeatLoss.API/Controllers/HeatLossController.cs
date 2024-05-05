@@ -3,6 +3,8 @@ using CylindricalPipeHeatLoss.API.Models.DBModels;
 using CylindricalPipeHeatLoss.API.Models.DTOs;
 using CylindricalPipeHeatLoss.API.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace CylindricalPipeHeatLoss.API.Controllers
 {
@@ -15,7 +17,7 @@ namespace CylindricalPipeHeatLoss.API.Controllers
         ) : Controller
     {
         [HttpPost]
-        public async Task<JsonResult> GetHeatLossReport(HeatLossRequestDTO requestDTO)
+        public async Task<JsonResult> CalcHeatLossReport(HeatLossRequestDTO requestDTO)
         {
             return new JsonResult(await reportGeneratingService.CalculateHeatLossInfoAsync(requestDTO));
         }
@@ -23,7 +25,7 @@ namespace CylindricalPipeHeatLoss.API.Controllers
         [HttpPost]
         public async Task<JsonResult> GetReports([FromBody] ReportsGetParams reportsGetParams)
         {
-            return await dBAccessService.
+            return new(await dBAccessService.GetReportsAsync(reportsGetParams));
         }
 
         [HttpPost]

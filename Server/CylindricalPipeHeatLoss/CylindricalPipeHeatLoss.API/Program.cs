@@ -25,10 +25,13 @@ public class Program
 
         builder.Services.AddTransient<ReportModelGeneratingService>();
         builder.Services.AddTransient<SavingReportService>();
+        builder.Services.AddTransient<DBAccessService>();
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        
 
         var app = builder.Build();
 
