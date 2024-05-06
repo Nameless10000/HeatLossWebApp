@@ -31,7 +31,16 @@ namespace CylindricalPipeHeatLoss.API.Controllers
         [HttpGet]
         public async Task<JsonResult> GetMaterials([FromQuery] int groupId = -1)
         {
-            return new(await dBAccessService.GetMaterialsAsync(groupId));
+            return new((await dBAccessService.GetMaterialsAsync(groupId))
+                .GroupBy(g => g.MaterialGroup.Name)
+                .Select(g => new 
+                    {
+                        title = g.Key,
+                        value = g.Key,
+                        selectable = false,
+                        children = g.Select(m => new {title = m.Name, value = m.ID})
+                    }
+                ));
         }
 
         [HttpGet]
