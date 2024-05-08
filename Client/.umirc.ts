@@ -1,7 +1,9 @@
 import { defineConfig } from '@umijs/max';
 
 export default defineConfig({
-  antd: {},
+  antd: {
+    dark: true
+  },
   access: {},
   model: {},
   initialState: {},
@@ -19,8 +21,14 @@ export default defineConfig({
       redirect: '/home',
     },
     {
+      title: 'Home',
       path: '/home',
       component: 'Home/index'
+    },
+    {
+      title: 'Previous',
+      path: '/previous',
+      component: 'Previous/index'
     }
   ],
   npmClient: 'npm',

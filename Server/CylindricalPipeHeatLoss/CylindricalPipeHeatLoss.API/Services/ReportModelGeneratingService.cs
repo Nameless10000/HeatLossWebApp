@@ -3,6 +3,7 @@ using CylindricalPipeHeatLoss.Library;
 using CylindricalPipeHeatLoss.API.Models.DTOs;
 using AutoMapper;
 using CylindricalPipeHeatLoss.API.Models.DBModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace CylindricalPipeHeatLoss.API.Services
 {
@@ -81,7 +82,12 @@ namespace CylindricalPipeHeatLoss.API.Services
 
             await dbContext.SaveChangesAsync();
 
-            return reportDb;
+            return await dbContext.Reports
+                .Include(r => r.Radiuses)
+                .Include(r => r.Temperatures)
+                .Include(r => r.PipeLayers)
+                .ThenInclude(layer => layer.Material)
+                .FirstAsync(r => r.ID == reportDb.ID);
         }
     }
 }

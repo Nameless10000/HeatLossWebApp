@@ -33,7 +33,7 @@ export type PipeLayer = {
 
 export type Report = {
   id: number;
-  generatedAt: Dayjs;
+  generatedAt: Date;
   q: number;
   innerQl: number;
   outterQl: number;
@@ -43,9 +43,9 @@ export type Report = {
   ql: number;
   innerTemp: number;
   outterTemp: number;
-  temperatures: [NumericDB];
-  radiuses: [NumericDB];
-  pipeLayers: [PipeLayer];
+  temperatures: NumericDB[];
+  radiuses: NumericDB[];
+  pipeLayers: PipeLayer[];
 };
 
 export enum PipeOrientation {
