@@ -225,20 +225,20 @@ const HomePage: React.FC = () => {
             }}
           >
             <Flex vertical>
-              <Typography.Title level={3}>Report</Typography.Title>
-              <Typography.Paragraph>
+              <Typography.Title style={{color: 'whitesmoke'}} level={3}>Report</Typography.Title>
+              <Typography.Paragraph style={{color: 'whitesmoke'}}>
                 Heat loss by meter: {report?.ql}
               </Typography.Paragraph>
-              <Typography.Paragraph>
+              <Typography.Paragraph style={{color: 'whitesmoke'}}>
                 Total heat loss: {report?.q}
-              </Typography.Paragraph>
-              <Typography.Paragraph>
+              </Typography.Paragraph >
+              <Typography.Paragraph style={{color: 'whitesmoke'}}>
                 Given heat transfer coefficient {'(a1)'}: {report?.a1}
               </Typography.Paragraph>
-              <Typography.Paragraph>
+              <Typography.Paragraph style={{color: 'whitesmoke'}}>
                 Found heat transfer coefficient {'(a2)'}: {report?.a2}
               </Typography.Paragraph>
-              <Typography.Paragraph>
+              <Typography.Paragraph style={{color: 'whitesmoke'}}>
                 Surface blackness: {report?.e}
               </Typography.Paragraph>
               <ProCard>

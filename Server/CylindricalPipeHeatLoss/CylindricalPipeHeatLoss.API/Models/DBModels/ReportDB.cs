@@ -1,20 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Xml.Serialization;
 
 namespace CylindricalPipeHeatLoss.API.Models.DBModels
 {
     public class ReportDB
     {
         [Key]
+        [XmlIgnore]
         public int ID { get; set; }
 
+        [XmlElement(ElementName = "Generated at")]
         public DateTime GeneratedAt { get; set; }
 
+
         public double Q { get; set; }
-
-        public double InnerQl { get; set; }
-
-        public double OutterQl { get; set; }
 
         public double a1 { get; set; }
 
@@ -24,8 +24,10 @@ namespace CylindricalPipeHeatLoss.API.Models.DBModels
 
         public double ql { get; set; }
 
+        [XmlElement(ElementName = "Inner temperature, °C")]
         public double InnerTemp { get; set; }
 
+        [XmlElement(ElementName = "Outter temperature, °C")]
         public double OutterTemp { get; set; }
 
         public List<TemperatureDB> Temperatures { get; set; }

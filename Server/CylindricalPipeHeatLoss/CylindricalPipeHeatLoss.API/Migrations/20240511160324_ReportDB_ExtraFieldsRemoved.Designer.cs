@@ -3,6 +3,7 @@ using System;
 using CylindricalPipeHeatLoss.API.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CylindricalPipeHeatLoss.API.Migrations
 {
     [DbContext(typeof(HeatLossDbContext))]
-    partial class HeatLossDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240511160324_ReportDB_ExtraFieldsRemoved")]
+    partial class ReportDB_ExtraFieldsRemoved
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.2");

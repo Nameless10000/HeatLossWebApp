@@ -50,16 +50,16 @@ namespace CylindricalPipeHeatLoss.API.Controllers
         }
 
         [HttpPost]
-        public async Task<FileResult> GetXmlReport(HeatLossRequestDTO requestDTO)
+        public async Task<FileResult> GetXmlReport(int requestID)
         {
-            var ms = await savingReportService.SaveReportAs(requestDTO);
+            var ms = await savingReportService.SaveReportAs(requestID);
 
             ms.Position = 0;
 
             return File(ms, "application/xml", $"report {DateTime.Now:f}.xml");
         }
 
-        [HttpPost]
+        /*[HttpPost]
         public async Task<FileResult> GetExcelReport(HeatLossRequestDTO requestDTO)
         {
             var ms = await savingReportService.SaveReportAs(requestDTO, FileType.Excel);
@@ -67,6 +67,6 @@ namespace CylindricalPipeHeatLoss.API.Controllers
             ms.Position = 0;
 
             return File(ms, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"report {DateTime.Now:f}.xlsx");
-        }
+        }*/
     }
 }
