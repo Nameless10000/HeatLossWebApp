@@ -1,4 +1,5 @@
 import { defineConfig } from '@umijs/max';
+import React from 'react';
 
 export default defineConfig({
   antd: {
@@ -13,7 +14,6 @@ export default defineConfig({
     default: 'ru-RU'
   },
   layout: {
-    title: 'Cylindrical multilayer wall calculator',
   },
   routes: [
     {
@@ -21,14 +21,19 @@ export default defineConfig({
       redirect: '/home',
     },
     {
-      title: 'Home',
+      name: 'Главная',
       path: '/home',
       component: 'Home/index'
     },
     {
-      title: 'Previous',
+      name: 'Отчеты',
       path: '/previous',
       component: 'Previous/index'
+    },
+    {
+      name: 'Материалы',
+      path: '/materials',
+      component: 'Materials/index'
     }
   ],
   npmClient: 'npm',

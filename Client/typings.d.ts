@@ -75,3 +75,11 @@ export type CalculateRequestDTO = {
   precision: number;
   pipeOrientation: PipeOrientation;
 };
+
+export type MaterialDTO = {
+  aCoeff: number;
+  bCoeff: number;
+  cCoeff: number;
+  materialGroupName: string | undefined;
+  materialGroupID: number | undefined;
+};

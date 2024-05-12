@@ -1,4 +1,4 @@
-import { Line } from '@ant-design/charts';
+import { Line, Sunburst } from '@ant-design/charts';
 import type { ProColumns } from '@ant-design/pro-components';
 import {
   PageContainer,
@@ -16,6 +16,7 @@ import { Typography } from 'antd/lib';
 import React, { useEffect, useState } from 'react';
 import { CalculateRequestDTO, Report } from 'typings';
 import { history } from '@umijs/max';
+import PipeView from '@/components/PipeView';
 
 enum PipeOrientation {
   Vertical = 1,
@@ -61,6 +62,12 @@ const HomePage: React.FC = () => {
     }[]
   >([]);
 
+  const [formRef] = ProForm.useForm<CalculateRequestDTO>();
+
+    useEffect(() => {
+      formRef.setFieldValue("precision", 1e-3);
+    }, [formRef])
+
   useEffect(() => {
     if (report == undefined) return;
 
@@ -96,9 +103,20 @@ const HomePage: React.FC = () => {
     },
   ];
 
+  const config = {
+    data: {
+      value: {
+
+      },
+    },
+    
+    colorField: 'value2',
+    innerRadius: 0,
+  };
+
   return (
-    <PageContainer ghost title="Calculator" footer={([
-      <Button type='dashed' onClick={() => history.push('/previous')}>Previous reports</Button>
+    <PageContainer ghost title="Калькулятор" footer={([
+      <Button type='dashed' onClick={() => history.push('/previous')}>Просмотреть отчеты</Button>
     ])}>
       <Flex vertical gap="2em">
         <ProCard
@@ -108,57 +126,84 @@ const HomePage: React.FC = () => {
             padding: '1em',
           }}
         >
+          <Sunburst {...config} data={{
+            value: {
+              name: 'bebra',
+            children: [
+              {
+                name: 'berba2',
+                value: 7,
+                value2: 'qwe',
+                children: [
+                  {
+                    name: 'berba3',
+                    value: 12,
+                    children: [],
+                    value2: 'ert'
+                  }
+                ]
+              }
+            ]
+            }
+          }}/>
           <ProForm
+          form={formRef}
             onFinish={onFormFinish}
             style={{ width: '100%' }}
             onValuesChange={(data) => console.log({ data })}
           >
             <ProFormDigit
               name="innerPipeRadius"
-              label="Inner pipe radius, m"
+              label="Внутренний радиус, м"
               required
               min={0}
               rules={[{ required: true }]}
+              placeholder=''
             />
             <ProFormDigit
               name="pipeLength"
-              label="Pipe length, m"
+              label="Длина трубы, м"
               required
               min={0}
               rules={[{ required: true }]}
+              placeholder=''
             />
             <ProFormDigit
               name="a1"
-              label="Heat transfer coefficient"
+              label="Коэффициент теплоотдачи от горячего флюида к стенке"
               required
               min={0}
               rules={[{ required: true }]}
+              placeholder=''
             />
             <ProFormDigit
               name="e"
-              label="pipe surface blackness"
+              label="Степень черноты поверхности"
               required
               min={0}
               max={1}
               rules={[{ required: true }]}
+              placeholder=''
             />
             <ProFormDigit
               name="innerTemp"
-              label="Temperature inside pipe, °C"
+              label="Температура внутри трубы, °C"
               required
               min={0}
               rules={[{ required: true }]}
+              placeholder=''
             />
             <ProFormDigit
               name="outterTemp"
-              label="Temperature outside pipe, °C"
+              label="Температура окружающей среды, °C"
               required
               min={0}
               rules={[{ required: true }]}
+              placeholder=''
             />
             <ProFormSelect
               name="precision"
-              label="Precision, decimal signs"
+              label="Точность вычислений"
               required
               rules={[{ required: true }]}
               options={[
@@ -167,15 +212,16 @@ const HomePage: React.FC = () => {
                 { label: '1E-2', value: 1e-2 },
                 { label: '1E-3', value: 1e-3 },
               ]}
+              placeholder=''
             />
             <ProFormList
               name="pipeLayers"
               style={{ width: '100%' }}
               creatorButtonProps={{
                 position: 'bottom',
-                creatorButtonText: 'layer',
+                creatorButtonText: 'новый слой',
               }}
-              label="Pipe layers"
+              label="Слои стенки"
               max={6}
               min={2}
               deleteIconProps={{ tooltipText: '' }}
@@ -187,7 +233,7 @@ const HomePage: React.FC = () => {
                     name={'width'}
                     min={0}
                     max={1}
-                    placeholder="layer width..."
+                    placeholder=""
                   />
                   <ProFormTreeSelect
                     style={{ width: '200px' }}
@@ -197,22 +243,24 @@ const HomePage: React.FC = () => {
                     }}
                     request={async () => {
                       return await request(
-                        'http://localhost:5114/api/HeatLoss/GetMaterials',
+                        'http://localhost:5114/api/HeatLoss/GetMaterialsForSelector',
                       );
                     }}
+                    placeholder=''
                   />
                 </Flex>
               )}
             </ProFormList>
             <ProFormSelect
               name="pipeOrientation"
-              label="Pipe orientation"
+              label="Расположение трубы"
               required
               rules={[{ required: true }]}
               options={[
-                { label: 'Vertical', value: PipeOrientation.Vertical },
-                { label: 'Horizontal', value: PipeOrientation.Horizontal },
+                { label: 'Вертикальное', value: PipeOrientation.Vertical },
+                { label: 'Горизонтальное', value: PipeOrientation.Horizontal },
               ]}
+              placeholder=''
             />
           </ProForm>
         </ProCard>

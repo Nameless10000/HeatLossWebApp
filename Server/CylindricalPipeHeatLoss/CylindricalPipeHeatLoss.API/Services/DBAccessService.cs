@@ -1,12 +1,14 @@
-﻿using CylindricalPipeHeatLoss.API.Models.DBModels;
+﻿using AutoMapper;
+using CylindricalPipeHeatLoss.API.Models.DBModels;
 using CylindricalPipeHeatLoss.API.Models.DTOs;
+using DocumentFormat.OpenXml.Office2016.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using static System.Math;
 
 namespace CylindricalPipeHeatLoss.API.Services
 {
-    public class DBAccessService(HeatLossDbContext dbContext)
+    public class DBAccessService(HeatLossDbContext dbContext, IMapper mapper)
     {
         #region Report Access Block
 
@@ -36,12 +38,48 @@ namespace CylindricalPipeHeatLoss.API.Services
         {
             return await (groupId switch
             {
-                -1 => dbContext.Materials.Include(x => x.MaterialGroup).ToListAsync(),
+                -1 => dbContext.Materials
+                    .Include(x => x.MaterialGroup)
+                    .ToListAsync(),
                 _ => dbContext.Materials
                     .Include(x => x.MaterialGroup)
                     .Where(material => material.MaterialGroupID == groupId)
                     .ToListAsync()
             });
+        }
+
+        public async Task<MaterialDB> AddMaterialAsync(MaterialDTO materialDTO)
+        {
+            var material = mapper.Map<MaterialDB>(materialDTO);
+
+            material.MaterialGroupID = (materialDTO.MaterialGroupID == null 
+                || materialDTO.MaterialGroupID == 0)
+                && !string.IsNullOrWhiteSpace(materialDTO.MaterialGroupName) 
+                    ? (await AddMaterialGroupAsync(materialDTO.MaterialGroupName)).ID
+            : materialDTO.MaterialGroupID.Value;
+
+            await dbContext.Materials.AddAsync(material);
+            await dbContext.SaveChangesAsync();
+
+            return material;
+        }
+
+        private async Task<MaterialGroupDB> AddMaterialGroupAsync(string name)
+        {
+            var sameGroup = await dbContext.MaterialGroups.FirstOrDefaultAsync(g => g.Name == name);
+
+            if (sameGroup != null)
+                return sameGroup;
+
+            var newGroup = new MaterialGroupDB()
+            {
+                Name = name
+            };
+
+            await dbContext.MaterialGroups.AddAsync(newGroup);
+            await dbContext.SaveChangesAsync();
+
+            return newGroup;
         }
 
         public async Task<List<MaterialGroupDB>> GetMaterialGroupsAsync()

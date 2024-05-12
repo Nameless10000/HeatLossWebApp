@@ -20,6 +20,8 @@ namespace CylindricalPipeHeatLoss.API.Services
                 .ForMember(x => x.Temperatures, opt => opt.Ignore())
                 .ForMember(x => x.Radiuses, opt => opt.Ignore())
                 .ForMember(x => x.PipeLayers, opt => opt.Ignore());
+
+            CreateMap<MaterialDTO, MaterialDB>();
         }
 
         private Material ExtractMaterialFromPipeLayerDTO(PipeLayerDTO pipeLayerDTO)
