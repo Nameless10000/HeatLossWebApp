@@ -8,12 +8,13 @@ import {
 import { history, request } from '@umijs/max';
 import { Button, Collapse, Flex, List, Tag, Typography } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Report } from 'typings';
+import { saveAs } from 'file-saver';
 
 const reportsColsStructure: ProColumns<Report>[] = [
   {
-    title: 'Generated at',
+    title: 'Отчет от',
     renderText(_, record) {
       return dayjs(record.generatedAt).format('DD.MM.YY HH:mm');
     },
@@ -57,7 +58,25 @@ const reportsColsStructure: ProColumns<Report>[] = [
       );
     },
   },
+  {
+    render(_, report) {
+      return <Button type='default' onClick={() => saveReportAsXML(report.id)}>Save as XML</Button>
+    }
+  }
 ];
+
+const saveReportAsXML = (reportID: number) => {
+    request(`http://localhost:5114/api/HeatLoss/GetXmlReport?requestID=${reportID}`,
+      {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/xml'
+        },
+        responseType: 'blob'
+      }
+    )
+    .then((file: Blob) => saveAs(file, `Heat loss report ${dayjs(new Date()).format('DD.MM.YY HH:mm:ss')}.xml`))
+}
 
 export default () => {
   const [reports, setReports] = useState<Report[]>([]);
