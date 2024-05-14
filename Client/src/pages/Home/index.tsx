@@ -10,8 +10,9 @@ import {
   ProFormTreeSelect,
   ProTable,
 } from '@ant-design/pro-components';
+import { useLocalStorage } from '@uidotdev/usehooks';
 import { history, request } from '@umijs/max';
-import { Button, Flex } from 'antd';
+import { Button, Flex, message } from 'antd';
 import { Typography } from 'antd/lib';
 import React, { useEffect, useState } from 'react';
 import {
@@ -50,11 +51,10 @@ const HomePage: React.FC = () => {
       method: 'POST',
       data,
     }).then((response: Report) => setReport(response));
-    // Ебануть табличку под расчеты, пару диаграмм (температура и радиусы)
-    // ответ от серваки приходит, все четко.
-    // создать 2 страницы под просмотр проведенных расчетов из БД
   };
 
+  debugger;
+  const [lsReportID, _] = useLocalStorage<number>('reportID', 0);
   const [report, setReport] = useState<Report | undefined>(undefined);
   const [listDataSource, setListDataSource] = useState<
     {
@@ -89,6 +89,21 @@ const HomePage: React.FC = () => {
     );
   }, [report]);
 
+  useEffect(() => {
+    if (lsReportID == undefined || lsReportID == 0) return;
+
+    request(`http://localhost:5114/api/HeatLoss/GetReport?id=${lsReportID}`)
+      .then((report: Report) => {
+        setReport(report);
+        formRef.setFieldsValue({ ...report });
+        formRef.setFieldValue('innerPipeRadius', report?.radiuses[0].value);
+
+        const dto = formRef.getFieldsValue();
+        handleFormValuesChanged(null, dto);
+      })
+      .catch(() => message.error('Отчет был удален или не существует'));
+  }, []);
+
   const mapLayersToRadialData = (pipeLayers: PipeLayerDTO[]) => {
     const data: SunburstData = {
       value: {
@@ -110,16 +125,20 @@ const HomePage: React.FC = () => {
     }
 
     return data;
-  };;
+  };
 
   const temperatureColsStructure: ProColumns[] = [
     {
       title: 'Удаление от центра трубы, м',
-      dataIndex: 'distance',
+      renderText(_, record) {
+        return record.distance.toFixed(3);
+      },
     },
     {
       title: 'Температура, °C',
-      dataIndex: 'temperature',
+      renderText(_, record) {
+        return record.temperature.toFixed(3);
+      },
     },
     {
       title: 'Материал слоя слева',
@@ -138,22 +157,26 @@ const HomePage: React.FC = () => {
         : null,
     colorField: 'name',
     innerRadius: requestDTO?.innerPipeRadius / 5,
-    radius: requestDTO?.pipeLayers.map(l => l.width).reduce((acc, l) => acc + l) / 5  + requestDTO?.innerPipeRadius / 5
+    radius:
+      requestDTO?.pipeLayers.map((l) => l.width).reduce((acc, l) => acc + l) /
+        5 +
+      requestDTO?.innerPipeRadius / 5,
   };
 
-  const handleFormValuesChanged = (
-    changedValues: any,
-    dto: CalculateRequestDTO,
-  ) => {
-    if (dto == undefined 
-      || dto.pipeLayers == undefined 
-      || dto.pipeLayers.length == 0
-      || dto.innerPipeRadius == undefined
-      || dto.innerPipeRadius == 0
-      || dto.pipeLayers.filter(l => l.width == undefined || l.materialID == undefined).length > 0)
+  const handleFormValuesChanged = (_: any, dto: CalculateRequestDTO) => {
+    if (
+      dto == undefined ||
+      dto.pipeLayers == undefined ||
+      dto.pipeLayers.length == 0 ||
+      dto.innerPipeRadius == undefined ||
+      dto.innerPipeRadius == 0 ||
+      dto.pipeLayers.filter(
+        (l) => l.width == undefined || l.materialID == undefined,
+      ).length > 0
+    )
       return;
-      
-      setRequestDTO(dto);
+
+    setRequestDTO(dto);
   };
 
   return (
@@ -305,16 +328,18 @@ const HomePage: React.FC = () => {
                 Report
               </Typography.Title>
               <Typography.Paragraph style={{ color: 'whitesmoke' }}>
-                Heat loss by meter: {report?.ql}
+                Heat loss by meter: {report?.ql.toFixed(3)}
               </Typography.Paragraph>
               <Typography.Paragraph style={{ color: 'whitesmoke' }}>
-                Total heat loss: {report?.q}
+                Total heat loss: {report?.q.toFixed(3)}
               </Typography.Paragraph>
               <Typography.Paragraph style={{ color: 'whitesmoke' }}>
-                Given heat transfer coefficient {'(a1)'}: {report?.a1}
+                Given heat transfer coefficient {'(a1)'}:{' '}
+                {report?.a1.toFixed(3)}
               </Typography.Paragraph>
               <Typography.Paragraph style={{ color: 'whitesmoke' }}>
-                Found heat transfer coefficient {'(a2)'}: {report?.a2}
+                Found heat transfer coefficient {'(a2)'}:{' '}
+                {report?.a2.toFixed(3)}
               </Typography.Paragraph>
               <Typography.Paragraph style={{ color: 'whitesmoke' }}>
                 Surface blackness: {report?.e}

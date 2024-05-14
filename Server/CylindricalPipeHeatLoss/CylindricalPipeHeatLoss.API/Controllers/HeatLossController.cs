@@ -29,6 +29,12 @@ namespace CylindricalPipeHeatLoss.API.Controllers
         }
 
         [HttpGet]
+        public async Task<JsonResult> GetReport([FromQuery] int id)
+        {
+            return new(await dBAccessService.GetReportAsync(id));
+        }
+
+        [HttpGet]
         public async Task<JsonResult> GetMaterialsForSelector()
         {
             return new((await dBAccessService.GetMaterialsAsync())

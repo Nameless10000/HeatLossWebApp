@@ -30,6 +30,16 @@ namespace CylindricalPipeHeatLoss.API.Services
             return await reportsByDate.ToListAsync();
         }
 
+        public async Task<ReportDB> GetReportAsync(int reportID)
+        {
+            return await dbContext.Reports
+                .Include(x => x.Temperatures)
+                .Include(x => x.PipeLayers)
+                .ThenInclude(x => x.Material)
+                .Include(x => x.Radiuses)
+                .FirstOrDefaultAsync(r => r.ID == reportID);
+        }
+
         #endregion
 
         #region DB Dictionaries Access Block
