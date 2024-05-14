@@ -96,8 +96,7 @@ const HomePage: React.FC = () => {
       },
     };
 
-    debugger;
-    let distanceFromCenter = requestDTO!.innerPipeRadius;
+    let distanceFromCenter = requestDTO!.innerPipeRadius / 10;
     let lastNode = data.value.children;
     for (const layer of pipeLayers) {
       distanceFromCenter += layer.width;
@@ -111,7 +110,7 @@ const HomePage: React.FC = () => {
     }
 
     return data;
-  };
+  };;
 
   const temperatureColsStructure: ProColumns[] = [
     {
@@ -138,7 +137,8 @@ const HomePage: React.FC = () => {
         ? mapLayersToRadialData(requestDTO?.pipeLayers)
         : null,
     colorField: 'name',
-    innerRadius: requestDTO?.innerPipeRadius,
+    innerRadius: requestDTO?.innerPipeRadius / 5,
+    radius: requestDTO?.pipeLayers.map(l => l.width).reduce((acc, l) => acc + l) / 5  + requestDTO?.innerPipeRadius / 5
   };
 
   const handleFormValuesChanged = (
@@ -152,7 +152,7 @@ const HomePage: React.FC = () => {
       || dto.innerPipeRadius == 0
       || dto.pipeLayers.filter(l => l.width == undefined || l.materialID == undefined).length > 0)
       return;
-      debugger;
+      
       setRequestDTO(dto);
   };
 
