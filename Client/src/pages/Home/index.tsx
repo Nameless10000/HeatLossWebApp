@@ -356,6 +356,7 @@ const HomePage: React.FC = () => {
                 />
               </ProCard>
               <Line
+                theme={'dark'}
                 data={listDataSource}
                 xField="distance"
                 yField="temperature"

@@ -71,6 +71,7 @@ export default () => {
       },
     },
     {
+      width: 200,
       render(_, report) {
         return (
           <Flex vertical gap={10}>
