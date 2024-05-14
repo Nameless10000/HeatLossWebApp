@@ -67,7 +67,7 @@ export type PipeLayerDTO = {
 export type CalculateRequestDTO = {
   innerPipeRadius: number;
   pipeLength: number;
-  pipeLayers: [PipeLayerDTO];
+  pipeLayers: PipeLayerDTO[];
   a1: number;
   e: number;
   innerTemp: number;
@@ -83,3 +83,15 @@ export type MaterialDTO = {
   materialGroupName: string | undefined;
   materialGroupID: number | undefined;
 };
+
+export type SunburstData = {
+  value: {
+    children: SunBurstDataItem[]
+  }
+}
+
+export type SunBurstDataItem = {
+  value: string | number;
+  name: number;
+  children: SunBurstDataItem[]
+}

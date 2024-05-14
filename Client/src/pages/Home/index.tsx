@@ -10,13 +10,16 @@ import {
   ProFormTreeSelect,
   ProTable,
 } from '@ant-design/pro-components';
-import { request } from '@umijs/max';
+import { history, request } from '@umijs/max';
 import { Button, Flex } from 'antd';
 import { Typography } from 'antd/lib';
 import React, { useEffect, useState } from 'react';
-import { CalculateRequestDTO, Report } from 'typings';
-import { history } from '@umijs/max';
-import PipeView from '@/components/PipeView';
+import {
+  CalculateRequestDTO,
+  PipeLayerDTO,
+  Report,
+  SunburstData,
+} from 'typings';
 
 enum PipeOrientation {
   Vertical = 1,
@@ -62,11 +65,13 @@ const HomePage: React.FC = () => {
     }[]
   >([]);
 
+  const [requestDTO, setRequestDTO] = useState<CalculateRequestDTO>();
+
   const [formRef] = ProForm.useForm<CalculateRequestDTO>();
 
-    useEffect(() => {
-      formRef.setFieldValue("precision", 1e-3);
-    }, [formRef])
+  useEffect(() => {
+    formRef.setFieldValue('precision', 1e-3);
+  }, [formRef]);
 
   useEffect(() => {
     if (report == undefined) return;
@@ -83,6 +88,30 @@ const HomePage: React.FC = () => {
       })),
     );
   }, [report]);
+
+  const mapLayersToRadialData = (pipeLayers: PipeLayerDTO[]) => {
+    const data: SunburstData = {
+      value: {
+        children: [],
+      },
+    };
+
+    debugger;
+    let distanceFromCenter = requestDTO!.innerPipeRadius;
+    let lastNode = data.value.children;
+    for (const layer of pipeLayers) {
+      distanceFromCenter += layer.width;
+      lastNode.pop();
+      lastNode.push({
+        name: layer.materialID!,
+        value: distanceFromCenter,
+        children: [],
+      });
+      lastNode = lastNode[0].children;
+    }
+
+    return data;
+  };
 
   const temperatureColsStructure: ProColumns[] = [
     {
@@ -104,20 +133,39 @@ const HomePage: React.FC = () => {
   ];
 
   const config = {
-    data: {
-      value: {
+    data:
+      requestDTO != undefined
+        ? mapLayersToRadialData(requestDTO?.pipeLayers)
+        : null,
+    colorField: 'name',
+    innerRadius: requestDTO?.innerPipeRadius,
+  };
 
-      },
-    },
-    
-    colorField: 'value2',
-    innerRadius: 0,
+  const handleFormValuesChanged = (
+    changedValues: any,
+    dto: CalculateRequestDTO,
+  ) => {
+    if (dto == undefined 
+      || dto.pipeLayers == undefined 
+      || dto.pipeLayers.length == 0
+      || dto.innerPipeRadius == undefined
+      || dto.innerPipeRadius == 0
+      || dto.pipeLayers.filter(l => l.width == undefined || l.materialID == undefined).length > 0)
+      return;
+      debugger;
+      setRequestDTO(dto);
   };
 
   return (
-    <PageContainer ghost title="Калькулятор" footer={([
-      <Button type='dashed' onClick={() => history.push('/previous')}>Просмотреть отчеты</Button>
-    ])}>
+    <PageContainer
+      ghost
+      title="Калькулятор"
+      footer={[
+        <Button type="dashed" onClick={() => history.push('/previous')}>
+          Просмотреть отчеты
+        </Button>,
+      ]}
+    >
       <Flex vertical gap="2em">
         <ProCard
           style={{
@@ -126,31 +174,12 @@ const HomePage: React.FC = () => {
             padding: '1em',
           }}
         >
-          <Sunburst {...config} data={{
-            value: {
-              name: 'bebra',
-            children: [
-              {
-                name: 'berba2',
-                value: 7,
-                value2: 'qwe',
-                children: [
-                  {
-                    name: 'berba3',
-                    value: 12,
-                    children: [],
-                    value2: 'ert'
-                  }
-                ]
-              }
-            ]
-            }
-          }}/>
-          <ProForm
-          form={formRef}
+          <Sunburst {...config} />
+          <ProForm<CalculateRequestDTO>
+            form={formRef}
             onFinish={onFormFinish}
             style={{ width: '100%' }}
-            onValuesChange={(data) => console.log({ data })}
+            onValuesChange={handleFormValuesChanged}
           >
             <ProFormDigit
               name="innerPipeRadius"
@@ -158,7 +187,7 @@ const HomePage: React.FC = () => {
               required
               min={0}
               rules={[{ required: true }]}
-              placeholder=''
+              placeholder=""
             />
             <ProFormDigit
               name="pipeLength"
@@ -166,7 +195,7 @@ const HomePage: React.FC = () => {
               required
               min={0}
               rules={[{ required: true }]}
-              placeholder=''
+              placeholder=""
             />
             <ProFormDigit
               name="a1"
@@ -174,7 +203,7 @@ const HomePage: React.FC = () => {
               required
               min={0}
               rules={[{ required: true }]}
-              placeholder=''
+              placeholder=""
             />
             <ProFormDigit
               name="e"
@@ -183,7 +212,7 @@ const HomePage: React.FC = () => {
               min={0}
               max={1}
               rules={[{ required: true }]}
-              placeholder=''
+              placeholder=""
             />
             <ProFormDigit
               name="innerTemp"
@@ -191,7 +220,7 @@ const HomePage: React.FC = () => {
               required
               min={0}
               rules={[{ required: true }]}
-              placeholder=''
+              placeholder=""
             />
             <ProFormDigit
               name="outterTemp"
@@ -199,7 +228,7 @@ const HomePage: React.FC = () => {
               required
               min={0}
               rules={[{ required: true }]}
-              placeholder=''
+              placeholder=""
             />
             <ProFormSelect
               name="precision"
@@ -212,7 +241,7 @@ const HomePage: React.FC = () => {
                 { label: '1E-2', value: 1e-2 },
                 { label: '1E-3', value: 1e-3 },
               ]}
-              placeholder=''
+              placeholder=""
             />
             <ProFormList
               name="pipeLayers"
@@ -228,25 +257,24 @@ const HomePage: React.FC = () => {
               copyIconProps={{ tooltipText: '' }}
             >
               {(field, index) => (
-                <Flex gap={25} key={'pipeLayer'} style={{ width: '100%' }}>
-                  <ProFormDigit
-                    name={'width'}
-                    min={0}
-                    max={1}
-                    placeholder=""
-                  />
+                <Flex gap={25} key={index} style={{ width: '100%' }}>
+                  <ProFormDigit name={'width'} min={0} max={1} placeholder="" />
                   <ProFormTreeSelect
-                    style={{ width: '200px' }}
                     name={'materialID'}
-                    fieldProps={{
-                      width: '200px',
-                    }}
                     request={async () => {
                       return await request(
                         'http://localhost:5114/api/HeatLoss/GetMaterialsForSelector',
                       );
                     }}
-                    placeholder=''
+                    placeholder=""
+                    fieldProps={{
+                      style: {
+                        minWidth: '200px',
+                      },
+                      dropdownStyle: {
+                        width: '200px',
+                      },
+                    }}
                   />
                 </Flex>
               )}
@@ -260,7 +288,7 @@ const HomePage: React.FC = () => {
                 { label: 'Вертикальное', value: PipeOrientation.Vertical },
                 { label: 'Горизонтальное', value: PipeOrientation.Horizontal },
               ]}
-              placeholder=''
+              placeholder=""
             />
           </ProForm>
         </ProCard>
@@ -273,46 +301,48 @@ const HomePage: React.FC = () => {
             }}
           >
             <Flex vertical>
-              <Typography.Title style={{color: 'whitesmoke'}} level={3}>Report</Typography.Title>
-              <Typography.Paragraph style={{color: 'whitesmoke'}}>
+              <Typography.Title style={{ color: 'whitesmoke' }} level={3}>
+                Report
+              </Typography.Title>
+              <Typography.Paragraph style={{ color: 'whitesmoke' }}>
                 Heat loss by meter: {report?.ql}
               </Typography.Paragraph>
-              <Typography.Paragraph style={{color: 'whitesmoke'}}>
+              <Typography.Paragraph style={{ color: 'whitesmoke' }}>
                 Total heat loss: {report?.q}
-              </Typography.Paragraph >
-              <Typography.Paragraph style={{color: 'whitesmoke'}}>
+              </Typography.Paragraph>
+              <Typography.Paragraph style={{ color: 'whitesmoke' }}>
                 Given heat transfer coefficient {'(a1)'}: {report?.a1}
               </Typography.Paragraph>
-              <Typography.Paragraph style={{color: 'whitesmoke'}}>
+              <Typography.Paragraph style={{ color: 'whitesmoke' }}>
                 Found heat transfer coefficient {'(a2)'}: {report?.a2}
               </Typography.Paragraph>
-              <Typography.Paragraph style={{color: 'whitesmoke'}}>
+              <Typography.Paragraph style={{ color: 'whitesmoke' }}>
                 Surface blackness: {report?.e}
               </Typography.Paragraph>
               <ProCard>
                 <ProTable
-                rowKey={(row) => row.distance}
-                headerTitle={(
-                  <Typography.Title level={4}>Temperatures</Typography.Title>
-                )}
+                  rowKey={(row) => row.distance}
+                  headerTitle={
+                    <Typography.Title level={4}>Temperatures</Typography.Title>
+                  }
                   dataSource={listDataSource}
                   search={false}
                   columns={temperatureColsStructure}
                 />
               </ProCard>
               <Line
-              data={listDataSource}
-              xField='distance'
-              yField='temperature'
-              title='Падение температуры на слоях, °C'
-              axis={{
-                x: {
-                  title: 'Удаление от центра трубы, м'
-                },
-                y: {
-                  title: 'Температура, °C'
-                }
-              }}  
+                data={listDataSource}
+                xField="distance"
+                yField="temperature"
+                title="Падение температуры на слоях, °C"
+                axis={{
+                  x: {
+                    title: 'Удаление от центра трубы, м',
+                  },
+                  y: {
+                    title: 'Температура, °C',
+                  },
+                }}
               />
             </Flex>
           </ProCard>
