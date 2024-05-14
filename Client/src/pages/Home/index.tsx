@@ -325,30 +325,31 @@ const HomePage: React.FC = () => {
           >
             <Flex vertical>
               <Typography.Title style={{ color: 'whitesmoke' }} level={3}>
-                Report
+                Отчет
               </Typography.Title>
               <Typography.Paragraph style={{ color: 'whitesmoke' }}>
-                Heat loss by meter: {report?.ql.toFixed(3)}
+                Удельные теплопотери: {report?.ql.toFixed(3)} Вт/м
               </Typography.Paragraph>
               <Typography.Paragraph style={{ color: 'whitesmoke' }}>
-                Total heat loss: {report?.q.toFixed(3)}
+                Полные теплопотери: {report?.q.toFixed(3)} Вт
               </Typography.Paragraph>
               <Typography.Paragraph style={{ color: 'whitesmoke' }}>
-                Given heat transfer coefficient {'(a1)'}:{' '}
-                {report?.a1.toFixed(3)}
+                Данный коэффициент теплоотдачи {'(a1)'}:{' '}
+                {report?.a1.toFixed(3)}{' Вт/(м²·К)'}
               </Typography.Paragraph>
               <Typography.Paragraph style={{ color: 'whitesmoke' }}>
-                Found heat transfer coefficient {'(a2)'}:{' '}
-                {report?.a2.toFixed(3)}
+                Найденный коэффициент теплоотдачи {'(a2)'}:{' '}
+                {report?.a2.toFixed(3)}{' Вт/(м²·К)'}
               </Typography.Paragraph>
               <Typography.Paragraph style={{ color: 'whitesmoke' }}>
-                Surface blackness: {report?.e}
+                Степень черноты поверхности: {report?.e}
               </Typography.Paragraph>
               <ProCard>
                 <ProTable
+                
                   rowKey={(row) => row.distance}
                   headerTitle={
-                    <Typography.Title level={4}>Temperatures</Typography.Title>
+                    <Typography.Title style={{color: 'whitesmoke'}} level={4}>Температуры</Typography.Title>
                   }
                   dataSource={listDataSource}
                   search={false}

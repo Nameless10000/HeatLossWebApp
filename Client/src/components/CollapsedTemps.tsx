@@ -21,7 +21,7 @@ export default ({ report }: CollapseTempsProps) => {
       items={[
         {
           key: '1',
-          label: activeKey != '1' && !activeKey.includes('1') ? 'Show' : 'Hide',
+          label: activeKey != '1' && !activeKey.includes('1') ? 'Смотреть' : 'Скрыть',
           children: (
             <List<{
               distance: number;
