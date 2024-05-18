@@ -12,7 +12,7 @@ import { Button, Divider, Flex, List, Tag, Typography } from 'antd';
 import dayjs from 'dayjs';
 import { saveAs } from 'file-saver';
 import { useEffect, useState } from 'react';
-import { Report } from 'typings';
+import { NumericDB, PipeOrientation, Report } from 'typings';
 
 export default () => {
   const [_, setReportID] = useLocalStorage<number>('reportID', 0);
@@ -115,17 +115,28 @@ export default () => {
     });
   }, []);
 
+  const prepareComparingParameter = (data: Report[], propSelector: (r: Report) => number, paramName: string) => {
+    const propVals = data.map(r => propSelector(r));
+    const min = [...propVals].sort((a, b) => a - b)[0];
+    const max = [...propVals].sort((a, b) => b - a)[0];
+
+    const comparingDataItem: {
+      paramName: string;
+      values: {
+        value: number;
+        isBest: boolean;
+        isWorst: boolean;
+      }[];
+    } = {
+      paramName,
+      values: propVals.map(v => ({value: v, isBest: v == max, isWorst: v == min}))
+    }
+
+    return comparingDataItem;
+  }
+
   const prepareComparingData = () => {
     const reports = selectedRows;
-
-    const minQl = selectedRows.sort((a, b) => a.ql - b.ql)[0].ql;
-    const maxQl = selectedRows.sort((a, b) => b.ql - a.ql)[0].ql;
-    const minQ = selectedRows.sort((a, b) => a.q - b.q)[0].q;
-    const maxQ = selectedRows.sort((a, b) => b.q - a.q)[0].q;
-    const minA2 = selectedRows.sort((a, b) => a.a2 - b.a2)[0].a2;
-    const maxA2 = selectedRows.sort((a, b) => b.a2 - a.a2)[0].a2;
-    const minA1 = selectedRows.sort((a, b) => a.a1 - b.a1)[0].a1;
-    const maxA1 = selectedRows.sort((a, b) => b.a1 - a.a1)[0].a1;
 
     const comparingData: {
       paramName: string;
@@ -135,39 +146,11 @@ export default () => {
         isWorst: boolean;
       }[];
     }[] = [
-      {
-        paramName: 'Удельная теплопотеря, Вт',
-        values: reports.map((r) => ({
-          value: r.ql,
-          isBest: r.ql == maxQl,
-          isWorst: r.ql == minQl,
-        })),
-      },
-      {
-        paramName: 'Полная теплопотеря, Вт',
-        values: reports.map((r) => ({
-          value: r.q,
-          isBest: r.q == maxQ,
-          isWorst: r.q == minQ,
-        })),
-      },
-      {
-        paramName: 'Коэфф. теплоотдачи от горяего флюида, Вт/(м²·К)',
-        values: reports.map((r) => ({
-          value: r.a1,
-          isBest: r.a1 == maxA1,
-          isWorst: r.a1 == minA1,
-        })),
-      },
-      {
-        paramName: 'Коэфф. теплоотдачи к холодному флюиду, Вт/(м²·К)',
-        values: reports.map((r) => ({
-          value: r.a2,
-          isBest: r.a2 == maxA2,
-          isWorst: r.a2 == minA2,
-        })),
-      },
-    ];
+      { propName: 'Удельная теплопотеря, Вт', selector: (report: Report) => report.ql},
+      { propName: 'Полная теплопотеря, Вт', selector: (report: Report) => report.q},
+      { propName: 'Коэфф. теплоотдачи от горяего флюида, Вт/(м²·К)', selector: (report: Report) => report.a1},
+      { propName: 'Коэфф. теплоотдачи к холодному флюиду, Вт/(м²·К)', selector: (report: Report) => report.a2}
+    ].map(param => prepareComparingParameter(reports, param.selector, param.propName));
 
     return comparingData;
   };
