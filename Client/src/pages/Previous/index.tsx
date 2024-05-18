@@ -22,7 +22,7 @@ export default () => {
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedRows, setSelectedRows] = useState<Report[]>([]);
-  const [selectedCompParams, setSelectedCompParams] = useState<number[]>([]);
+  const [selectedCompParams, setSelectedCompParams] = useState<number[]>([-1]);
 
   const handleShowMore = (reportID: number) => {
     setReportID(reportID);
@@ -117,6 +117,8 @@ export default () => {
       setReports(response);
       setIsLoading(false);
     });
+
+    setSelectedCompParams(comparingParams.map((param, i) => i));
   }, []);
 
   const prepareComparingParameter = (
@@ -227,7 +229,7 @@ export default () => {
           }}
         />
       </ProCard>
-      {selectedRows.length >= 2 ? (
+      {selectedRows.length >= 2 && selectedRows.length <= 5 ? (
         <ProCard
           style={{
             borderRadius: '2em',
@@ -253,6 +255,12 @@ export default () => {
                   value: i,
                   label: param.propName,
                 }))}
+
+                fieldProps={{
+                  value: selectedCompParams,
+                  variant: 'filled'
+                }}
+
                 onChange={(params: number[]) => {
                   setSelectedCompParams(params);
                 }}
@@ -300,7 +308,11 @@ export default () => {
             }}
           />
         </ProCard>
-      ) : null}
+      ) : (
+        selectedRows.length > 5 ? (
+          <Typography.Title>Выбрано слишком много записей</Typography.Title>
+        ) : null
+      )}
     </PageContainer>
   );
 };
