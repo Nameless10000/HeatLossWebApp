@@ -3,22 +3,26 @@ import {
   PageContainer,
   ProCard,
   ProColumns,
+  ProForm,
+  ProFormSelect,
   ProList,
   ProTable,
 } from '@ant-design/pro-components';
 import { useLocalStorage } from '@uidotdev/usehooks';
 import { history, request } from '@umijs/max';
-import { Button, Divider, Flex, List, Tag, Typography } from 'antd';
+import { Button, Divider, Flex, Form, List, Tag, Typography } from 'antd';
+import { useForm } from 'antd/es/form/Form';
 import dayjs from 'dayjs';
 import { saveAs } from 'file-saver';
-import { useEffect, useState } from 'react';
-import { NumericDB, PipeOrientation, Report } from 'typings';
+import { useEffect, useRef, useState } from 'react';
+import { Report } from 'typings';
 
 export default () => {
   const [_, setReportID] = useLocalStorage<number>('reportID', 0);
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedRows, setSelectedRows] = useState<Report[]>([]);
+  const [selectedCompParams, setSelectedCompParams] = useState<number[]>([]);
 
   const handleShowMore = (reportID: number) => {
     setReportID(reportID);
@@ -115,12 +119,18 @@ export default () => {
     });
   }, []);
 
-  const prepareComparingParameter = (data: Report[], propSelector: (r: Report) => number, paramName: string) => {
-    const propVals = data.map(r => propSelector(r));
+  const prepareComparingParameter = (
+    data: Report[],
+    propSelector: (r: Report) => number,
+    paramName: string,
+    key: number,
+  ) => {
+    const propVals = data.map((r) => propSelector(r));
     const min = [...propVals].sort((a, b) => a - b)[0];
     const max = [...propVals].sort((a, b) => b - a)[0];
 
     const comparingDataItem: {
+      key: number;
       paramName: string;
       values: {
         value: number;
@@ -128,29 +138,43 @@ export default () => {
         isWorst: boolean;
       }[];
     } = {
+      key,
       paramName,
-      values: propVals.map(v => ({value: v, isBest: v == max, isWorst: v == min}))
-    }
+      values: propVals.map((v) => ({
+        value: v,
+        isBest: v == max,
+        isWorst: v == min,
+      })),
+    };
 
     return comparingDataItem;
-  }
+  };
+
+  const comparingParams = [
+    {
+      propName: 'Удельная теплопотеря, Вт',
+      selector: (report: Report) => report.ql,
+    },
+    {
+      propName: 'Полная теплопотеря, Вт',
+      selector: (report: Report) => report.q,
+    },
+    {
+      propName: 'Коэфф. теплоотдачи от горяего флюида, Вт/(м²·К)',
+      selector: (report: Report) => report.a1,
+    },
+    {
+      propName: 'Коэфф. теплоотдачи к холодному флюиду, Вт/(м²·К)',
+      selector: (report: Report) => report.a2,
+    },
+  ];
 
   const prepareComparingData = () => {
     const reports = selectedRows;
 
-    const comparingData: {
-      paramName: string;
-      values: {
-        value: number;
-        isBest: boolean;
-        isWorst: boolean;
-      }[];
-    }[] = [
-      { propName: 'Удельная теплопотеря, Вт', selector: (report: Report) => report.ql},
-      { propName: 'Полная теплопотеря, Вт', selector: (report: Report) => report.q},
-      { propName: 'Коэфф. теплоотдачи от горяего флюида, Вт/(м²·К)', selector: (report: Report) => report.a1},
-      { propName: 'Коэфф. теплоотдачи к холодному флюиду, Вт/(м²·К)', selector: (report: Report) => report.a2}
-    ].map(param => prepareComparingParameter(reports, param.selector, param.propName));
+    const comparingData = comparingParams.map((param, i) =>
+      prepareComparingParameter(reports, param.selector, param.propName, i)
+    ).filter(p => selectedCompParams.includes(p.key));
 
     return comparingData;
   };
@@ -215,7 +239,25 @@ export default () => {
             <Typography.Title level={3}>
               Сравнение параметров отчетов
             </Typography.Title>
-            // Todo: добавить выбор параметров сравнения
+            <Flex vertical gap={10} align='end'>
+              <Typography.Title level={5}>
+                Параметры сравнения:
+              </Typography.Title>
+              <ProFormSelect
+                style={{
+                  maxWidth: '600px',
+                  minWidth: '250px',
+                }}
+                mode="multiple"
+                options={comparingParams.map((param, i) => ({
+                  value: i,
+                  label: param.propName,
+                }))}
+                onChange={(params: number[]) => {
+                  setSelectedCompParams(params);
+                }}
+              />
+            </Flex>
           </Flex>
           <ProList<{
             paramName: string;
