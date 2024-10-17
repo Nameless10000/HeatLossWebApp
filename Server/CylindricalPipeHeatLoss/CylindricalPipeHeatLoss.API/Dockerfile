@@ -15,5 +15,5 @@ RUN dotnet publish "./CylindricalPipeHeatLoss.API.csproj" -c Release -o /app/pub
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY CylindricalPipeHeatLoss.API/HeatLossDb.db /app/publish/HeatLossDb.db
+COPY CylindricalPipeHeatLoss.API/HeatLossDb.db /app/HeatLossDb.db
 ENTRYPOINT ["dotnet", "CylindricalPipeHeatLoss.API.dll"]
