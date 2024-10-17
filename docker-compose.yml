@@ -1,0 +1,30 @@
+version: '3.7'
+
+services:   
+  client:
+    container_name: heatloss-client
+    hostname: heatloss-client
+    restart: always
+    build: Client/
+    volumes:
+      - ./nginx/logs:/var/log/nginx
+    ports:
+      - "0.0.0.0:5144:80"
+    networks:
+      - heatlossnet
+
+  api:
+    container_name: heatloss-server
+    hostname: heatloss-server
+    restart: always
+    build:
+       context: Server/CylindricalPipeHeatLoss/
+       dockerfile: CylindricalPipeHeatLoss.API/Dockerfile
+    ports:
+      - "0.0.0.0:5143:5143"
+    networks:
+      - heatlossnet
+      
+networks:
+  heatlossnet:
+    name: heatlossnet
