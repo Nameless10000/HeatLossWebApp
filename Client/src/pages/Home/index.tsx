@@ -47,7 +47,7 @@ const formItemLayoutWithOutLabel = {
 
 const HomePage: React.FC = () => {
   const onFormFinish = (data: CalculateRequestDTO) => {
-    request('http://localhost:5114/api/HeatLoss/CalcHeatLossReport', {
+    request('/api/HeatLoss/CalcHeatLossReport', {
       method: 'POST',
       data,
     }).then((response: Report) => setReport(response));
@@ -92,7 +92,7 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     if (lsReportID == undefined || lsReportID == 0) return;
 
-    request(`http://localhost:5114/api/HeatLoss/GetReport?id=${lsReportID}`)
+    request(`/api/HeatLoss/GetReport?id=${lsReportID}`)
       .then((report: Report) => {
         setReport(report);
         formRef.setFieldsValue({ ...report });
@@ -286,7 +286,7 @@ const HomePage: React.FC = () => {
                     name={'materialID'}
                     request={async () => {
                       return await request(
-                        'http://localhost:5114/api/HeatLoss/GetMaterialsForSelector',
+                        '/api/HeatLoss/GetMaterialsForSelector',
                       );
                     }}
                     placeholder=""

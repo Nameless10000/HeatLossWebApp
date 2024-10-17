@@ -92,7 +92,7 @@ export default () => {
 
   const saveReportAsXML = (reportID: number) => {
     request(
-      `http://localhost:5114/api/HeatLoss/GetXmlReport?requestID=${reportID}`,
+      `/api/HeatLoss/GetXmlReport?requestID=${reportID}`,
       {
         method: 'POST',
         headers: {
@@ -110,7 +110,7 @@ export default () => {
 
   useEffect(() => {
     setIsLoading(true);
-    request('http://localhost:5114/api/HeatLoss/GetReports', {
+    request('/api/HeatLoss/GetReports', {
       method: 'POST',
       data: {},
     }).then((response: Report[]) => {

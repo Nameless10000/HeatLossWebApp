@@ -20,12 +20,12 @@ export default () => {
   const [isNewGroup, setIsNewGroup] = useState<boolean>(false);
 
   useEffect(() => {
-    request('http://localhost:5114/api/HeatLoss/GetMaterials').then(
+    request('/api/HeatLoss/GetMaterials').then(
       (response: Material[]) => setMaterials(response),
     );
 
     request(
-        'http://localhost:5114/api/HeatLoss/GetMaterialGroups',
+        '/api/HeatLoss/GetMaterialGroups',
       ).then((groups: MaterialGroup[]) => setGroups(groups.map(mg => ({ value: mg.id, label: mg.name }))))
   }, []);
 
@@ -102,7 +102,7 @@ export default () => {
   const handleReset = () => {
     searchForm.resetFields();
 
-    request(`http://localhost:5114/api/HeatLoss/GetMaterials?groupID=-1`).then(
+    request(`/api/HeatLoss/GetMaterials?groupID=-1`).then(
       (response: Material[]) => setMaterials(response),
     );
   };
@@ -113,7 +113,7 @@ export default () => {
     if (materialGroupID == undefined || materialGroupID == 0) return;
 
     request(
-      `http://localhost:5114/api/HeatLoss/GetMaterials?groupID=${materialGroupID}`,
+      `/api/HeatLoss/GetMaterials?groupID=${materialGroupID}`,
     ).then((response: Material[]) => setMaterials(response));
   };
 
@@ -124,7 +124,7 @@ export default () => {
   } 
 
   const handleAddMaterial = (materialDTO: MaterialDTO) => {
-        request("http://localhost:5114/api/HeatLoss/AddMaterial", {
+        request("/api/HeatLoss/AddMaterial", {
             method: "POST",
             data: materialDTO
         })
