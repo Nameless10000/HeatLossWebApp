@@ -11,6 +11,7 @@ export const layout = () => {
     menu: {
       locale: true,
     },
+    layout: 'top',
     title: 'Калькулятор теплопотерь'
   };
 };

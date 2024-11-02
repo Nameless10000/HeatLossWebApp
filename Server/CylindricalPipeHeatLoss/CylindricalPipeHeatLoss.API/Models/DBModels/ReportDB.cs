@@ -37,5 +37,7 @@ namespace CylindricalPipeHeatLoss.API.Models.DBModels
         public List<PipeLayerDB> PipeLayers { get; set; }
 
         public double PipeLength { get; set; }
+
+        public double CriticalDiameter { get; set; }
     }
 }

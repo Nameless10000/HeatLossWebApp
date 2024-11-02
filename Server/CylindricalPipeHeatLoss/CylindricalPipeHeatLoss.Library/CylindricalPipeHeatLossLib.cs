@@ -41,6 +41,8 @@ namespace CylindricalPipeHeatLoss.Library
 
         private List<double> _radiuses = [];
 
+        private double _criticalDiam;
+
         private double InnerQl { get; set; }
 
         private double OutterQl { get; set; }
@@ -71,6 +73,7 @@ namespace CylindricalPipeHeatLoss.Library
             _radiuses.Add(innerPipeRadius);
 
             CalcTempsAndQls();
+            CalcCriticalDiam();
         }
 
         public ReportModel GetReport() => new()
@@ -88,9 +91,12 @@ namespace CylindricalPipeHeatLoss.Library
                 e = _e,
                 InnerQl = RoundToPrecision(InnerQl),
                 OutterQl = RoundToPrecision(OutterQl),
+                CriticalDiameter = RoundToPrecision(_criticalDiam)
             };
 
         private double RoundToPrecision(double number) => Round(number / _precision) * _precision;
+
+        private void CalcCriticalDiam() => _criticalDiam = 2.0 * _pipeLayers.Average(x => x.ThermalConductivityCoeff) / _a2;
 
         private void CalcTempsAndQls()
         {

@@ -3,30 +3,32 @@ import {
   ProCard,
   ProColumns,
   ProForm,
-  ProFormDigit,
   ProFormSelect,
   ProFormText,
   ProTable,
 } from '@ant-design/pro-components';
 import { request } from '@umijs/max';
-import { Button, Checkbox, Divider, Flex, Typography } from 'antd';
+import { Button, Divider, Flex, Typography, message } from 'antd';
 import { useEffect, useState } from 'react';
-import { Material, MaterialDTO, MaterialGroup } from 'typings';
-import { PlusOutlined } from '@ant-design/icons'
+import {
+  Material,
+  MaterialDTO,
+  MaterialGroup,
+  MaterialGroupDTO,
+} from 'typings';
 
 export default () => {
   const [materials, setMaterials] = useState<Material[]>([]);
-  const [groups, setGroups] = useState<{value: number, label: string}[]>([]);
-  const [isNewGroup, setIsNewGroup] = useState<boolean>(false);
+  const [groups, setGroups] = useState<MaterialGroup[]>([]);
 
   useEffect(() => {
-    request('/api/HeatLoss/GetMaterials').then(
-      (response: Material[]) => setMaterials(response),
+    request('/api/HeatLoss/GetMaterials').then((response: Material[]) =>
+      setMaterials(response),
     );
 
-    request(
-        '/api/HeatLoss/GetMaterialGroups',
-      ).then((groups: MaterialGroup[]) => setGroups(groups.map(mg => ({ value: mg.id, label: mg.name }))))
+    request('/api/HeatLoss/GetMaterialWithCounterGroups').then(
+      (groups: MaterialGroup[]) => setGroups(groups),
+    );
   }, []);
 
   const columns: ProColumns<Material>[] = [
@@ -92,12 +94,75 @@ export default () => {
             placeholder={''}
             style={{ width: '25%' }}
             name="materialGroupID"
-            options={groups}
+            options={groups.map((x) => ({ value: x.id, label: x.name }))}
           />
         );
       },
     },
+    {
+      title: '',
+      align: 'center',
+      render(dom, entity) {
+        return (
+          <>
+            <Button
+              danger
+              type="primary"
+              onClick={() => handleMaterialRemove(entity.id)}
+            >
+              Удалить
+            </Button>
+          </>
+        );
+      },
+    },
   ];
+
+  const materialGroupColumns: ProColumns<MaterialGroup>[] = [
+    {
+      title: 'Название группы',
+      dataIndex: 'name',
+    },
+    {
+      title: 'Количество материалов этого типа',
+      dataIndex: 'materialsCount',
+      width: '10%',
+      align: 'center',
+    },
+    {
+      align: 'center',
+      render(dom, entity) {
+        return (
+          <>
+            <Button
+              danger
+              type="primary"
+              onClick={() => handleMaterialGroupRemove(entity.id)}
+            >
+              Удалить
+            </Button>
+          </>
+        );
+      },
+      width: '20%',
+    },
+  ];
+
+  const handleMaterialRemove = (id: number) => {
+    request(`/api/HeatLoss/RemoveMaterial?materialId=${id}`, {
+      method: 'DELETE',
+    }).then((response: { message: string }) => message.info(response.message));
+
+    setMaterials((prev) => prev.filter((x) => x.id != id));
+  };
+
+  const handleMaterialGroupRemove = (id: number) => {
+    request(`/api/HeatLoss/RemoveMaterialGroup?materialGroupId=${id}`, {
+      method: 'DELETE',
+    }).then((response: { message: string }) => message.info(response.message));
+
+    setGroups((prev) => prev.filter((x) => x.id != id));
+  };
 
   const handleReset = () => {
     searchForm.resetFields();
@@ -112,54 +177,86 @@ export default () => {
 
     if (materialGroupID == undefined || materialGroupID == 0) return;
 
-    request(
-      `/api/HeatLoss/GetMaterials?groupID=${materialGroupID}`,
-    ).then((response: Material[]) => setMaterials(response));
+    request(`/api/HeatLoss/GetMaterials?groupID=${materialGroupID}`).then(
+      (response: Material[]) => setMaterials(response),
+    );
   };
 
   const returnEquation = () => {
-    const {aCoeff, bCoeff, cCoeff} = form.getFieldsValue();
-    if (aCoeff == undefined || bCoeff == undefined || cCoeff == undefined) return;
-    setEquation(`${aCoeff}x^2${bCoeff < 0 ? '' : '+'}${bCoeff}x${cCoeff < 0 ? '' : '+'}${cCoeff}`);
-  } 
+    const { aCoeff, bCoeff, cCoeff } = materialForm.getFieldsValue();
+    if (aCoeff == undefined || bCoeff == undefined || cCoeff == undefined)
+      return;
+    setEquation(
+      `${aCoeff}x^2${bCoeff < 0 ? '' : '+'}${bCoeff}x${
+        cCoeff < 0 ? '' : '+'
+      }${cCoeff}`,
+    );
+  };
+
+  const handleAddMaterialGroup = (materialGroupDTO: MaterialGroupDTO) => {
+    request('/api/HeatLoss/AddMaterialGroup', {
+      method: 'POST',
+      data: materialGroupDTO,
+    }).then((newGroup: MaterialGroup) => {
+      if (newGroup.id != null) setGroups((prev) => [...prev, newGroup]);
+      message.success(
+        newGroup.message ?? 'Группа материалов успешно добавлена',
+      );
+    });
+  };
 
   const handleAddMaterial = (materialDTO: MaterialDTO) => {
-        request("/api/HeatLoss/AddMaterial", {
-            method: "POST",
-            data: materialDTO
-        })
-        .then((newMaterial: Material) => setMaterials(prev => [...prev, newMaterial].sort((a, b) => a.materialGroupID - b.materialGroupID)))
-  }
+    request('/api/HeatLoss/AddMaterial', {
+      method: 'POST',
+      data: materialDTO,
+    }).then((newMaterial: Material) => {
+      setMaterials((prev) =>
+        [...prev, newMaterial].sort(
+          (a, b) => a.materialGroupID - b.materialGroupID,
+        ),
+      );
+      message.success('Метариал успешно добавлен');
+    });
+  };
 
   const [searchForm] = ProForm.useForm<Material>();
-  const [form] = ProForm.useForm<MaterialDTO>();
+  const [materialForm] = ProForm.useForm<MaterialDTO>();
+  const [groupForm] = ProForm.useForm<MaterialGroupDTO>();
   const [equation, setEquation] = useState<string>();
 
   return (
-    <PageContainer ghost title="Доступные материалы">
+    <PageContainer ghost title="Справочник материалов">
       <ProCard
-
         style={{
           borderRadius: '2em',
           boxShadow: '0 0 1em gray',
           padding: '1em',
-          marginBottom: '2em'
+          marginBottom: '2em',
         }}
       >
         <ProForm<MaterialDTO>
-        onFinish={(materialDTO) => handleAddMaterial(materialDTO)}
-        form={form}
-        onValuesChange={() => {
+          onFinish={(materialDTO) => handleAddMaterial(materialDTO)}
+          form={materialForm}
+          onValuesChange={() => {
             returnEquation();
-        }}
-        submitter={{
+          }}
+          submitter={{
             render(props, dom) {
-                return [
-                    <Button type="dashed" onClick={() => form.resetFields()}>Сбросить</Button>,
-                    <Button type='primary' htmlType='submit'>  Добавить</Button>
-                ]
+              return [
+                <Button
+                  type="dashed"
+                  onClick={() => materialForm.resetFields()}
+                >
+                  Сбросить
+                </Button>,
+                <Button type="primary" htmlType="submit">
+                  {' '}
+                  Добавить
+                </Button>,
+              ];
             },
-        }}>
+          }}
+        >
           <ProFormText
             name="name"
             label="Название"
@@ -171,34 +268,97 @@ export default () => {
             ]}
             placeholder={''}
           />
-          <Divider/>
-          <ProForm.Group style={{ width: '100%' }} align='center'>
-            <ProFormDigit style={{width: 200}} min={-10} max={10} required name="aCoeff" label="A" placeholder={''} initialValue={0}/>
-            <ProFormDigit style={{width: 200}} min={-10} max={10} required name="bCoeff" label="B" placeholder={''} initialValue={0}/>
-            <ProFormDigit style={{width: 200}} min={-10} max={10} required name="cCoeff" label="C" placeholder={''} initialValue={0}/>
-            <Typography.Title level={5} style={{height: '100%'}}>Итоговый вид уравнения: {equation}</Typography.Title>
+          <Divider />
+          <ProForm.Group style={{ width: '100%' }} align="center">
+            <ProFormText
+              style={{ width: 200 }}
+              required
+              name="aCoeff"
+              label="A"
+              placeholder={''}
+              initialValue={0}
+            />
+            <ProFormText
+              style={{ width: 200 }}
+              required
+              name="bCoeff"
+              label="B"
+              placeholder={''}
+              initialValue={0}
+            />
+            <ProFormText
+              style={{ width: 200 }}
+              required
+              name="cCoeff"
+              label="C"
+              placeholder={''}
+              initialValue={0}
+            />
+            <Typography.Title level={5} style={{ height: '100%' }}>
+              Итоговый вид уравнения: {equation}
+            </Typography.Title>
           </ProForm.Group>
-          <Divider/>
-          <ProForm.Group>
-            <Flex vertical align='center' justify='space-between' style={{width: 200}}>
-              <Typography.Text>Создать группу</Typography.Text>
-              <Checkbox
-                value={isNewGroup}
-                onChange={() => setIsNewGroup((prev) => !prev)}
-              />
-            </Flex>
-            {!isNewGroup ? (
-              <ProFormSelect
-              style={{width: 200}}
-                label="Группа"
-                name="materialGroupID"
-                options={groups}
-              />
-            ) : (
-              <ProFormText name="materialGroupName" label="Название группы" style={{width: 200}}/>
-            )}
-          </ProForm.Group>
+          <Divider />
+          <ProFormSelect
+            style={{ width: 200 }}
+            label="Группа"
+            required
+            name="materialGroupID"
+            options={groups.map((x) => ({ value: x.id, label: x.name }))}
+          />
+          <Divider />
         </ProForm>
+      </ProCard>
+
+      <ProCard
+        style={{
+          borderRadius: '2em',
+          boxShadow: '0 0 1em gray',
+          padding: '1em',
+          marginBottom: '2em',
+        }}
+      >
+        <ProForm
+          onFinish={(groupDTO) => handleAddMaterialGroup(groupDTO)}
+          form={groupForm}
+          submitter={{
+            render(props, dom) {
+              return [
+                <Button type="dashed" onClick={() => groupForm.resetFields()}>
+                  Сбросить
+                </Button>,
+                <Button type="primary" htmlType="submit">
+                  {' '}
+                  Добавить
+                </Button>,
+              ];
+            },
+          }}
+        >
+          <ProFormText
+            name="name"
+            required
+            label="Название группы"
+            style={{ width: 200 }}
+          />
+        </ProForm>
+      </ProCard>
+      <ProCard
+        style={{
+          borderRadius: '2em',
+          boxShadow: '0 0 1em gray',
+          padding: '1em',
+          marginBottom: '2em',
+        }}
+      >
+        <ProTable<MaterialGroup>
+          columns={materialGroupColumns}
+          dataSource={groups}
+          search={false}
+          pagination={{
+            pageSize: 10
+          }}
+        />
       </ProCard>
       <ProCard
         style={{
@@ -210,6 +370,9 @@ export default () => {
         <ProTable<Material>
           dataSource={materials}
           columns={columns}
+          pagination={{
+            pageSize: 10
+          }}
           search={{
             form: searchForm,
             labelWidth: 'auto',

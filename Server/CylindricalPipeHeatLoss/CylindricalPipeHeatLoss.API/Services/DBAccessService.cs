@@ -44,6 +44,19 @@ namespace CylindricalPipeHeatLoss.API.Services
 
         #region DB Dictionaries Access Block
 
+        public async Task<bool> RemoveUnusedMaterialAsync(int  materialId)
+        {
+            var material = await dbContext.Materials.FirstOrDefaultAsync(x => x.ID == materialId);
+
+            if (material == null
+                || await dbContext.Reports.AnyAsync(x => x.PipeLayers.Any(l => l.MaterialID == materialId)))
+                return false;
+            
+            dbContext.Materials.Remove(material);
+            await dbContext.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<List<MaterialDB>> GetMaterialsAsync(int groupId = -1)
         {
             return await (groupId switch
@@ -58,15 +71,14 @@ namespace CylindricalPipeHeatLoss.API.Services
             });
         }
 
-        public async Task<MaterialDB> AddMaterialAsync(MaterialDTO materialDTO)
+        public async Task<MaterialDB?> AddMaterialAsync(MaterialDTO materialDTO)
         {
-            var material = mapper.Map<MaterialDB>(materialDTO);
+            var desiredGroup = await dbContext.MaterialGroups.FirstOrDefaultAsync(x => x.ID == materialDTO.MaterialGroupID);
 
-            material.MaterialGroupID = (materialDTO.MaterialGroupID == null 
-                || materialDTO.MaterialGroupID == 0)
-                && !string.IsNullOrWhiteSpace(materialDTO.MaterialGroupName) 
-                    ? (await AddMaterialGroupAsync(materialDTO.MaterialGroupName)).ID
-            : materialDTO.MaterialGroupID.Value;
+            if (desiredGroup == null)
+                return null;
+
+            var material = mapper.Map<MaterialDB>(materialDTO);
 
             await dbContext.Materials.AddAsync(material);
             await dbContext.SaveChangesAsync();
@@ -74,27 +86,41 @@ namespace CylindricalPipeHeatLoss.API.Services
             return material;
         }
 
-        private async Task<MaterialGroupDB> AddMaterialGroupAsync(string name)
+        public async Task<bool> RemoveUnusedMaterialGroupAsync(int groupId)
         {
-            var sameGroup = await dbContext.MaterialGroups.FirstOrDefaultAsync(g => g.Name == name);
+            var group = await dbContext.MaterialGroups
+                .Include(x => x.Materials)
+                .FirstOrDefaultAsync(x => x.ID == groupId);
+
+            if (group == null
+                || group.Materials.Count > 0)
+                return false;
+
+            dbContext.MaterialGroups.Remove(group);
+            await dbContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<MaterialGroupDB?> AddMaterialGroupAsync(MaterialGroupDTO groupDTO)
+        {
+            var sameGroup = await dbContext.MaterialGroups.FirstOrDefaultAsync(g => g.Name == groupDTO.Name);
 
             if (sameGroup != null)
-                return sameGroup;
+                return null;
 
-            var newGroup = new MaterialGroupDB()
-            {
-                Name = name
-            };
+            var newGroup = mapper.Map<MaterialGroupDB>(groupDTO);
 
             await dbContext.MaterialGroups.AddAsync(newGroup);
             await dbContext.SaveChangesAsync();
 
-            return newGroup;
+            return await dbContext.MaterialGroups
+                .Include(x => x.Materials)
+                .FirstOrDefaultAsync(x => x.ID == newGroup.ID);
         }
 
         public async Task<List<MaterialGroupDB>> GetMaterialGroupsAsync()
         {
-            return await dbContext.MaterialGroups.ToListAsync();
+            return await dbContext.MaterialGroups.Include(x => x.Materials).ToListAsync();
         }
 
         public async Task<List<PipeLayerDB>> GetLayersByReport(int reportId)

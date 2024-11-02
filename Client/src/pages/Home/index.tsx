@@ -1,4 +1,4 @@
-import { Line, Sunburst } from '@ant-design/charts';
+import { Line } from '@ant-design/charts';
 import type { ProColumns } from '@ant-design/pro-components';
 import {
   PageContainer,
@@ -53,7 +53,6 @@ const HomePage: React.FC = () => {
     }).then((response: Report) => setReport(response));
   };
 
-  debugger;
   const [lsReportID, _] = useLocalStorage<number>('reportID', 0);
   const [report, setReport] = useState<Report | undefined>(undefined);
   const [listDataSource, setListDataSource] = useState<
@@ -141,13 +140,9 @@ const HomePage: React.FC = () => {
       },
     },
     {
-      title: 'Материал слоя слева',
+      title: 'Материал слоя',
       dataIndex: 'fstMaterialName',
-    },
-    {
-      title: 'Материал слоя справа',
-      dataIndex: 'scndMaterialName',
-    },
+    }
   ];
 
   const config = {
@@ -182,7 +177,7 @@ const HomePage: React.FC = () => {
   return (
     <PageContainer
       ghost
-      title="Калькулятор"
+      title="Расчет теплопередачи через цилиндрическую стенку печи"
       footer={[
         <Button type="dashed" onClick={() => history.push('/previous')}>
           Просмотреть отчеты
@@ -197,7 +192,6 @@ const HomePage: React.FC = () => {
             padding: '1em',
           }}
         >
-          <Sunburst {...config} />
           <ProForm<CalculateRequestDTO>
             form={formRef}
             onFinish={onFormFinish}
@@ -328,28 +322,33 @@ const HomePage: React.FC = () => {
                 Отчет
               </Typography.Title>
               <Typography.Paragraph style={{ color: 'whitesmoke' }}>
+                Критический диаметр: {report?.criticalDiameter.toFixed(3)} м
+              </Typography.Paragraph>
+              <Typography.Paragraph style={{ color: 'whitesmoke' }}>
                 Удельные теплопотери: {report?.ql.toFixed(3)} Вт/м
               </Typography.Paragraph>
               <Typography.Paragraph style={{ color: 'whitesmoke' }}>
                 Полные теплопотери: {report?.q.toFixed(3)} Вт
               </Typography.Paragraph>
               <Typography.Paragraph style={{ color: 'whitesmoke' }}>
-                Данный коэффициент теплоотдачи {'(a1)'}:{' '}
-                {report?.a1.toFixed(3)}{' Вт/(м²·К)'}
+                Данный коэффициент теплоотдачи {'(a1)'}: {report?.a1.toFixed(3)}
+                {' Вт/(м²·К)'}
               </Typography.Paragraph>
               <Typography.Paragraph style={{ color: 'whitesmoke' }}>
                 Найденный коэффициент теплоотдачи {'(a2)'}:{' '}
-                {report?.a2.toFixed(3)}{' Вт/(м²·К)'}
+                {report?.a2.toFixed(3)}
+                {' Вт/(м²·К)'}
               </Typography.Paragraph>
               <Typography.Paragraph style={{ color: 'whitesmoke' }}>
                 Степень черноты поверхности: {report?.e}
               </Typography.Paragraph>
               <ProCard>
                 <ProTable
-                
                   rowKey={(row) => row.distance}
                   headerTitle={
-                    <Typography.Title style={{color: 'whitesmoke'}} level={4}>Температуры</Typography.Title>
+                    <Typography.Title style={{ color: 'whitesmoke' }} level={4}>
+                      Температуры
+                    </Typography.Title>
                   }
                   dataSource={listDataSource}
                   search={false}
@@ -358,13 +357,16 @@ const HomePage: React.FC = () => {
               </ProCard>
               <Line
                 theme={'dark'}
-                data={listDataSource}
+                data={listDataSource.map((x) => ({
+                  ...x,
+                  distance: x.distance - report.radiuses[0].value,
+                }))}
                 xField="distance"
                 yField="temperature"
                 title="Падение температуры на слоях, °C"
                 axis={{
                   x: {
-                    title: 'Удаление от центра трубы, м',
+                    title: 'Удаление от края трубы, м',
                   },
                   y: {
                     title: 'Температура, °C',

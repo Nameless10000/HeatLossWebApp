@@ -5,6 +5,13 @@ export default defineConfig({
   antd: {
     dark: true
   },
+  proxy: {
+    '/api/': {
+      target: 'http://127.0.0.1:5143',
+      changeOrigin: true,
+      pathRewrite: { '^': '' }
+    }
+  },
   access: {},
   model: {},
   initialState: {},
@@ -31,7 +38,7 @@ export default defineConfig({
       component: 'Previous/index'
     },
     {
-      name: 'Материалы',
+      name: 'Справочник материалов',
       path: '/materials',
       component: 'Materials/index'
     }

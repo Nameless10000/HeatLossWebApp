@@ -5,6 +5,8 @@ export type Dayjs = Dayjs;
 export type MaterialGroup = {
   name: string;
   id: number;
+  materialsCount? : number,
+  message?: string
 };
 
 export type Material = {
@@ -46,6 +48,7 @@ export type Report = {
   temperatures: NumericDB[];
   radiuses: NumericDB[];
   pipeLayers: PipeLayer[];
+  criticalDiameter: number;
 };
 
 export enum PipeOrientation {
@@ -80,9 +83,13 @@ export type MaterialDTO = {
   aCoeff: number;
   bCoeff: number;
   cCoeff: number;
-  materialGroupName: string | undefined;
+  name: string;
   materialGroupID: number | undefined;
 };
+
+export type MaterialGroupDTO = {
+  name: string;
+}
 
 export type SunburstData = {
   value: {

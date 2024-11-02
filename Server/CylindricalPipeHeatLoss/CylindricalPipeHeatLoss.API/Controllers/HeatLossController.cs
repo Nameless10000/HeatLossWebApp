@@ -16,6 +16,51 @@ namespace CylindricalPipeHeatLoss.API.Controllers
         DBAccessService dBAccessService
         ) : Controller
     {
+        // Удаление материала, если его нет в отчетах
+        [HttpDelete]
+        public async Task<JsonResult> RemoveMaterial([FromQuery] int materialId)
+        {
+            return new(new
+            {
+                Message = await dBAccessService.RemoveUnusedMaterialAsync(materialId)
+                    ? "Материал успешно удален"
+                    : "Материал не существует или используется"
+            });
+        }
+
+        // Удаление группы материалов, если она пустая
+        [HttpDelete]
+        public async Task<JsonResult> RemoveMaterialGroup([FromQuery] int materialGroupId)
+        {
+            return new(new
+            {
+                Message = await dBAccessService.RemoveUnusedMaterialGroupAsync(materialGroupId)
+                    ? "Группа успешно удалена"
+                    : "Группа не существует или содержит материалы"
+            });
+        }
+
+        // Получение только групп, без материалов (мб счетчик материалов в группе)
+        [HttpGet]
+        public async Task<JsonResult> GetMaterialWithCounterGroups()
+        {
+            var groups = await dBAccessService.GetMaterialGroupsAsync();
+            var withCounter = groups
+                .Select(x => new { x.ID, x.Name, MaterialsCount = x.Materials.Count })
+                .ToList();
+            return new(withCounter);
+        }
+
+        public async Task<JsonResult> AddMaterialGroup([FromBody] MaterialGroupDTO materialGroupDTO)
+        {
+            var materialGroup = await dBAccessService.AddMaterialGroupAsync(materialGroupDTO);
+
+            if (materialGroup == null)
+                return new(new { Message = "Группа с таким именем уже существует" });
+
+            return new(new { materialGroup.ID, materialGroup.Name, MaterialsCount = materialGroup.Materials.Count });
+        }
+
         [HttpPost]
         public async Task<JsonResult> CalcHeatLossReport(HeatLossRequestDTO requestDTO)
         {

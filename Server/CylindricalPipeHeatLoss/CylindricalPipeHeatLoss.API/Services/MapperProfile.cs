@@ -13,6 +13,8 @@ namespace CylindricalPipeHeatLoss.API.Services
         {
             ResourceMaterials = dbContext.Materials.ToList();
 
+            CreateMap<MaterialGroupDTO, MaterialGroupDB>();
+
             CreateMap<PipeLayerDTO, PipeLayer>()
                 .ForMember(x => x.Material, opt => opt.MapFrom(x => ExtractMaterialFromPipeLayerDTO(x)));
 
