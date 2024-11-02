@@ -41,6 +41,11 @@ export default defineConfig({
       name: 'Справочник материалов',
       path: '/materials',
       component: 'Materials/index'
+    },
+    {
+      name: 'Методические указания',
+      path: '/methodics',
+      component: 'Methodics/index'
     }
   ],
   npmClient: 'npm',
