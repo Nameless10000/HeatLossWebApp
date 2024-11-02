@@ -96,7 +96,7 @@ namespace CylindricalPipeHeatLoss.Library
 
         private double RoundToPrecision(double number) => Round(number / _precision) * _precision;
 
-        private void CalcCriticalDiam() => _criticalDiam = 2.0 * _pipeLayers.Average(x => x.ThermalConductivityCoeff) / _a2;
+        private void CalcCriticalDiam() => _criticalDiam = 2.0 * _pipeLayers[^1].ThermalConductivityCoeff / _a2;
 
         private void CalcTempsAndQls()
         {
