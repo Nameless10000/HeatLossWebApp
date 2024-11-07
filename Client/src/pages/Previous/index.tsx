@@ -184,11 +184,7 @@ export default () => {
   return (
     <PageContainer
       title="Отчеты"
-      footer={[
-        <Button type="dashed" onClick={() => history.push('/home')}>
-          Back to calculator
-        </Button>,
-      ]}
+      footer={[]}
     >
       <ProCard
         style={{

@@ -2,16 +2,18 @@
 
 // 全局初始化数据配置，用于 Layout 用户信息和权限初始化
 // 更多信息见文档：https://umijs.org/docs/api/runtime-config#getinitialstate
-export async function getInitialState(): Promise<{ name: string }> {
-  return { name: '@umijs/max' };
+export async function getInitialState(): Promise<{ name?: string }> {
+  return { name: undefined };
 }
 
 export const layout = () => {
   return {
     menu: {
-      locale: true,
+      locale: false,
     },
     layout: 'top',
-    title: 'Калькулятор теплопотерь'
+    title: 'Калькулятор теплопотерь',
+    logo: null
   };
 };
+

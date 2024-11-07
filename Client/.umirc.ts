@@ -21,6 +21,7 @@ export default defineConfig({
     default: 'ru-RU'
   },
   layout: {
+    title: '',
   },
   routes: [
     {

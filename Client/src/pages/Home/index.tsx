@@ -178,11 +178,7 @@ const HomePage: React.FC = () => {
     <PageContainer
       ghost
       title="Расчет теплопередачи через цилиндрическую стенку печи"
-      footer={[
-        <Button type="dashed" onClick={() => history.push('/previous')}>
-          Просмотреть отчеты
-        </Button>,
-      ]}
+      footer={[]}
     >
       <Flex vertical gap="2em">
         <ProCard
@@ -197,6 +193,14 @@ const HomePage: React.FC = () => {
             onFinish={onFormFinish}
             style={{ width: '100%' }}
             onValuesChange={handleFormValuesChanged}
+            submitter={{
+              render(props, dom) {
+                return [
+                  <Button type="dashed" onClick={() => formRef.resetFields()}>Сброс</Button>,
+                  <Button type="primary" htmlType="submit">Выполнить расчет</Button>
+                ];
+              },
+            }}
           >
             <ProFormDigit
               name="innerPipeRadius"
